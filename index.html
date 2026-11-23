@@ -10,11 +10,13 @@
   <meta property="og:type" content="website" />
   <meta property="og:title" content="TokoKu — Katalog Produk & Toko Online" />
   <meta property="og:description" content="Belanja langsung di web dengan katalog produk lengkap, promo, ongkir otomatis, dan pembayaran praktis." />
+  <meta property="og:url" content="https://hantubucin25-hash.github.io/" />
   <script type="application/ld+json" id="store-jsonld">
     {
       "@context": "https://schema.org",
       "@type": "Store",
       "name": "TokoKu",
+      "url": "https://hantubucin25-hash.github.io/",
       "description": "Belanja mudah, cepat & terpercaya",
       "priceRange": "$$"
     }
@@ -105,7 +107,7 @@
           <span>Live</span>
         </button>
 
-        <button id="open-settings-btn" type="button" class="inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-[0.99] transition cursor-pointer" aria-label="Pengaturan Katalog">
+        <button id="open-settings-btn" type="button" class="hidden inline-flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 active:scale-[0.99] transition cursor-pointer" aria-label="Pengaturan Katalog">
           <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4 text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
             <circle cx="12" cy="12" r="3" />
@@ -130,13 +132,13 @@
       <div class="mb-5 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-          <span>Semua fitur (katalog, keranjang, pembayaran langsung, & setingan) aktif langsung di halaman web ini.</span>
+          <span>Katalog, keranjang, ongkir otomatis, & pembayaran langsung aktif di halaman web ini.</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
-          <button type="button" data-quick-access="add-product" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition cursor-pointer">+ Tambah Produk</button>
-          <button type="button" data-quick-access="store-settings" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">Atur Toko & Pembayaran</button>
+          <button type="button" data-quick-access="add-product" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition cursor-pointer">+ Tambah Produk</button>
+          <button type="button" data-quick-access="store-settings" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">Atur Toko & Pembayaran</button>
           <button type="button" data-quick-access="orders" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-700 hover:bg-emerald-100 transition cursor-pointer">Riwayat Transaksi</button>
-          <button type="button" data-quick-access="live-story" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition cursor-pointer">Kelola Live & Story</button>
+          <button type="button" data-quick-access="live-story" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-rose-50 text-rose-700 hover:bg-rose-100 transition cursor-pointer">Kelola Live & Story</button>
           <button type="button" data-quick-access="share-store" class="px-3 py-1.5 rounded-xl text-xs font-semibold bg-sky-50 text-sky-700 hover:bg-sky-100 transition cursor-pointer">Bagikan ke Medsos</button>
         </div>
       </div>
@@ -147,7 +149,7 @@
             <h2 class="text-xs sm:text-sm font-bold text-slate-900">Video Story & Live Shopping</h2>
             <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">Interaktif</span>
           </div>
-          <button id="story-add-shortcut-btn" type="button" class="text-xs font-semibold text-brand-600 hover:text-brand-700 cursor-pointer">+ Kelola Story</button>
+          <button id="story-add-shortcut-btn" type="button" class="hidden text-xs font-semibold text-brand-600 hover:text-brand-700 cursor-pointer">+ Kelola Story</button>
         </div>
         <div id="stories-strip" class="flex items-center gap-3.5 overflow-x-auto pb-1"></div>
       </div>
@@ -188,7 +190,10 @@
         <p>© <span id="footer-year"></span> <span id="footer-store-name" class="font-medium text-slate-700">TokoKu</span>. Katalog & keranjang tersimpan otomatis di browser.</p>
         <p id="footer-store-location" class="text-xs text-slate-400 mt-0.5"></p>
       </div>
-      <p>Ongkir dasar <span id="footer-shipping-fee" class="font-medium text-slate-700">Rp15.000</span> (Gratis ongkir mulai <span id="footer-free-shipping" class="font-medium text-slate-700">Rp250.000</span>).</p>
+      <div class="flex items-center gap-3">
+        <p>Ongkir dasar <span id="footer-shipping-fee" class="font-medium text-slate-700">Rp15.000</span> (Gratis ongkir mulai <span id="footer-free-shipping" class="font-medium text-slate-700">Rp250.000</span>).</p>
+        <button id="admin-lock-btn" type="button" class="px-2.5 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 hover:bg-slate-100 transition cursor-pointer">Admin</button>
+      </div>
     </div>
   </footer>
 
@@ -497,7 +502,6 @@
         </div>
 
         <div class="p-5 max-h-[75vh] overflow-y-auto space-y-5">
-          <!-- Tab 1: Profil Toko & Pembayaran -->
           <form id="settings-store-form" class="settings-panel space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
@@ -539,7 +543,6 @@
             </div>
           </form>
 
-          <!-- Tab 2: Tambah / Kelola Produk -->
           <div id="settings-products-panel" class="settings-panel hidden space-y-5">
             <form id="add-product-form" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
               <h4 class="text-sm font-bold text-slate-900">Tambah Produk Baru</h4>
@@ -563,7 +566,6 @@
             </div>
           </div>
 
-          <!-- Tab 3: Live & Story -->
           <div id="settings-stories-panel" class="settings-panel hidden space-y-4">
             <form id="add-story-form" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
               <h4 class="text-sm font-bold text-slate-900">Tambah Story / Promo Live</h4>
@@ -601,6 +603,7 @@
 
   <script>
     const STORAGE_KEY = 'tokoku_state_v1';
+    const ADMIN_PIN = '123456'; // Ganti dengan PIN rahasia milikmu
 
     const DEFAULT_STATE = {
       store: {
@@ -684,6 +687,7 @@
     };
 
     let state = null;
+    let isAdminUnlocked = false;
     let activeCategory = 'Semua';
     let searchQuery = '';
     let selectedProduct = null;
@@ -715,6 +719,47 @@
       }, 2800);
     }
 
+    function setAdminControlsVisible(visible) {
+      const idsToToggle = ['open-settings-btn', 'story-add-shortcut-btn'];
+      idsToToggle.forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.classList.toggle('hidden', !visible);
+      });
+
+      document.querySelectorAll('[data-quick-access]').forEach((btn) => {
+        const act = btn.dataset.quickAccess;
+        if (act === 'add-product' || act === 'store-settings' || act === 'live-story') {
+          btn.classList.toggle('hidden', !visible);
+        }
+      });
+    }
+
+    function requestAdminUnlock(onSuccess) {
+      if (isAdminUnlocked) {
+        setAdminControlsVisible(true);
+        if (typeof onSuccess === 'function') onSuccess();
+        return;
+      }
+
+      const inputPin = window.prompt('Masukkan PIN Admin toko:');
+      if (inputPin === null) return;
+
+      if (inputPin.trim() === ADMIN_PIN) {
+        isAdminUnlocked = true;
+        setAdminControlsVisible(true);
+        showToast('Mode admin aktif.', 'success');
+        if (typeof onSuccess === 'function') onSuccess();
+      } else {
+        showToast('PIN admin salah.', 'error');
+      }
+    }
+
+    function checkAdminHashTrigger() {
+      if (window.location.hash === '#admin') {
+        requestAdminUnlock();
+      }
+    }
+
     function saveToStorage() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -723,7 +768,6 @@
       }
     }
 
-    // Fungsi loadFromStorage yang aman terhadap data kosong/rusak
     function loadFromStorage() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
@@ -804,6 +848,7 @@
           '@context': 'https://schema.org',
           '@type': 'Store',
           name: s.name,
+          url: 'https://hantubucin25-hash.github.io/',
           description: s.tagline,
           address: s.location || undefined,
         });
@@ -822,7 +867,7 @@
       const strip = document.getElementById('stories-strip');
       if (!strip) return;
       if (!state.stories.length) {
-        strip.innerHTML = `<p class="text-xs text-slate-500">Belum ada story aktif. Klik "+ Kelola Story" untuk menambahkan.</p>`;
+        strip.innerHTML = `<p class="text-xs text-slate-500">Belum ada story aktif.</p>`;
         return;
       }
       strip.innerHTML = state.stories.map((story, idx) => `
@@ -1226,7 +1271,7 @@
     function openLiveModal(storyId = null) {
       const story = state.stories.find((s) => s.id === storyId) || state.stories[0];
       if (!story) {
-        openSettingsModal('stories');
+        requestAdminUnlock(() => openSettingsModal('stories'));
         return;
       }
       const prod = state.products.find((p) => p.id === story.productId) || state.products[0];
@@ -1307,8 +1352,12 @@
       });
     }
 
-    // Fungsi openSettingsModal yang lengkap & tahan error
     function openSettingsModal(initialTab = 'store') {
+      if (!isAdminUnlocked) {
+        requestAdminUnlock(() => openSettingsModal(initialTab));
+        return;
+      }
+
       document.getElementById('set-store-name').value = state.store.name || '';
       document.getElementById('set-store-location').value = state.store.location || '';
       document.getElementById('set-store-tagline').value = state.store.tagline || '';
@@ -1336,27 +1385,34 @@
     }
 
     function bindEvents() {
-      // Quick Access Buttons
+      document.getElementById('admin-lock-btn')?.addEventListener('click', () => {
+        requestAdminUnlock();
+      });
+
       document.querySelectorAll('[data-quick-access]').forEach((btn) => {
         btn.addEventListener('click', () => {
           const action = btn.dataset.quickAccess;
-          if (action === 'add-product') openSettingsModal('products');
-          else if (action === 'store-settings') openSettingsModal('store');
+          if (action === 'add-product') requestAdminUnlock(() => openSettingsModal('products'));
+          else if (action === 'store-settings') requestAdminUnlock(() => openSettingsModal('store'));
           else if (action === 'orders') openOrdersModal();
-          else if (action === 'live-story') openSettingsModal('stories');
+          else if (action === 'live-story') requestAdminUnlock(() => openSettingsModal('stories'));
           else if (action === 'share-store') openShareModal();
         });
       });
 
-      // Header & Story Shortcuts
-      document.getElementById('open-settings-btn').addEventListener('click', () => openSettingsModal('store'));
-      document.getElementById('story-add-shortcut-btn').addEventListener('click', () => openSettingsModal('stories'));
+      document.getElementById('open-settings-btn').addEventListener('click', () => {
+        requestAdminUnlock(() => openSettingsModal('store'));
+      });
+      document.getElementById('story-add-shortcut-btn').addEventListener('click', () => {
+        requestAdminUnlock(() => openSettingsModal('stories'));
+      });
       document.getElementById('open-cart-btn').addEventListener('click', openCartDrawer);
       document.getElementById('open-orders-btn').addEventListener('click', openOrdersModal);
       document.getElementById('open-live-btn').addEventListener('click', () => openLiveModal());
       document.getElementById('open-share-store-btn').addEventListener('click', () => openShareModal());
 
-      // Search & Filter
+      window.addEventListener('hashchange', checkAdminHashTrigger);
+
       const searchInput = document.getElementById('search-input');
       const clearSearchBtn = document.getElementById('clear-search-btn');
       searchInput.addEventListener('input', (e) => {
@@ -1379,7 +1435,6 @@
         renderCatalog();
       });
 
-      // Product Modal
       document.getElementById('close-product-modal').addEventListener('click', closeProductModal);
       document.getElementById('product-modal-backdrop').addEventListener('click', closeProductModal);
       document.getElementById('modal-qty-minus').addEventListener('click', () => {
@@ -1401,7 +1456,6 @@
         if (selectedProduct) openShareModal(selectedProduct);
       });
 
-      // Cart Drawer
       document.getElementById('close-cart-btn').addEventListener('click', closeCartDrawer);
       document.getElementById('cart-backdrop').addEventListener('click', closeCartDrawer);
       document.getElementById('cart-shipping-zone').addEventListener('change', (e) => {
@@ -1428,7 +1482,6 @@
       });
       document.getElementById('open-checkout-btn').addEventListener('click', openCheckoutModal);
 
-      // Checkout & Payment
       document.getElementById('close-checkout-modal').addEventListener('click', closeCheckoutModal);
       document.getElementById('checkout-backdrop').addEventListener('click', closeCheckoutModal);
       document.getElementById('buyer-address').addEventListener('input', updateCheckoutSummary);
@@ -1500,7 +1553,6 @@
           total: calc.total,
         };
 
-        // Kurangi stok produk
         state.cart.forEach((item) => {
           const prod = state.products.find((p) => p.id === item.productId);
           if (prod) prod.stock = Math.max(0, Number(prod.stock || 0) - Number(item.qty || 1));
@@ -1539,7 +1591,6 @@
       document.getElementById('print-receipt-btn').addEventListener('click', () => window.print());
       document.getElementById('done-receipt-btn').addEventListener('click', closeCheckoutModal);
 
-      // Orders & Live Modals
       document.getElementById('close-orders-modal').addEventListener('click', () => document.getElementById('orders-modal').classList.add('hidden'));
       document.getElementById('orders-backdrop').addEventListener('click', () => document.getElementById('orders-modal').classList.add('hidden'));
       document.getElementById('close-live-modal').addEventListener('click', () => document.getElementById('live-modal').classList.add('hidden'));
@@ -1551,7 +1602,6 @@
         openCartDrawer();
       });
 
-      // Settings Modal & Tabs
       document.getElementById('close-settings-modal').addEventListener('click', closeSettingsModal);
       document.getElementById('settings-backdrop').addEventListener('click', closeSettingsModal);
       document.querySelectorAll('.settings-tab-btn').forEach((btn) => {
@@ -1642,7 +1692,6 @@
         showToast('Story ditambahkan!', 'success');
       });
 
-      // Share Modal
       document.getElementById('close-share-modal').addEventListener('click', () => document.getElementById('share-modal').classList.add('hidden'));
       document.getElementById('share-backdrop').addEventListener('click', () => document.getElementById('share-modal').classList.add('hidden'));
       document.getElementById('copy-share-link-btn').addEventListener('click', () => {
@@ -1652,9 +1701,10 @@
       });
     }
 
-    // Inisialisasi Aplikasi
     state = loadFromStorage();
     bindEvents();
+    setAdminControlsVisible(false);
+    checkAdminHashTrigger();
     syncStoreUI();
     renderStories();
     renderCategoryFilters();
