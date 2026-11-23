@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TokoKu — Katalog Produk & Toko Online</title>
-  <meta name="description" content="TokoKu — Katalog produk pilihan, hitung ongkir otomatis, pembayaran QRIS/VA/E-Wallet, dan belanja langsung di web dengan cepat." />
+  <meta name="description" content="TokoKu — Katalog produk pilihan, hitung ongkir otomatis, pembayaran Transfer Bank & E-Wallet, dan belanja langsung di web dengan cepat." />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="1H-EHvCv1t5mWq2fqoP71v4ZGmtgTApRRxMhgjQh0sA" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="TokoKu — Katalog Produk & Toko Online" />
-  <meta property="og:description" content="Belanja langsung di web dengan katalog produk lengkap, promo, ongkir otomatis, dan pembayaran praktis." />
+  <meta property="og:description" content="Belanja langsung di web dengan katalog produk lengkap, promo, ongkir otomatis, dan pembayaran Transfer Bank & E-Wallet." />
   <meta property="og:url" content="https://hantubucin25-hash.github.io/" />
   <script type="application/ld+json" id="store-jsonld">
     {
@@ -132,7 +132,7 @@
       <div class="mb-5 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-          <span>Katalog, keranjang, ongkir otomatis, & pembayaran langsung aktif di halaman web ini.</span>
+          <span>Katalog, keranjang, ongkir otomatis, & pembayaran Transfer / E-Wallet aktif di halaman web ini.</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" data-quick-access="add-product" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition cursor-pointer">+ Tambah Produk</button>
@@ -296,7 +296,7 @@
     </div>
   </div>
 
-  <!-- MODAL 2: CHECKOUT & PEMBAYARAN -->
+  <!-- MODAL 2: CHECKOUT & PEMBAYARAN (TRANSFER & E-WALLET) -->
   <div id="checkout-modal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
     <div id="checkout-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-[2px] drawer-backdrop"></div>
     <div class="fixed inset-0 overflow-y-auto flex items-center justify-center p-4">
@@ -341,72 +341,53 @@
             </div>
 
             <div class="space-y-2">
-              <label class="block text-sm font-medium text-slate-700">Metode Pembayaran Langsung</label>
-              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                <button type="button" data-pay-method="qris" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-brand-50 border-brand-600 text-brand-900">
-                  <p class="text-xs font-bold">QRIS</p>
-                  <p class="text-[11px] text-slate-600 mt-0.5">Scan QR semua e-wallet & m-banking</p>
+              <label class="block text-sm font-medium text-slate-700">Metode Pembayaran</label>
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <button type="button" data-pay-method="transfer" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-brand-50 border-brand-600 text-brand-900">
+                  <p class="text-xs font-bold">Transfer Bank</p>
+                  <p class="text-[11px] text-slate-600 mt-0.5">Transfer manual / m-banking / ATM</p>
                 </button>
-                <button type="button" data-pay-method="va" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
-                  <p class="text-xs font-bold">Virtual Account</p>
-                  <p class="text-[11px] text-slate-500 mt-0.5">BCA, Mandiri, BRI</p>
-                </button>
-                <button type="button" data-pay-method="ewallet_card" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
-                  <p class="text-xs font-bold">E-Wallet / Kartu</p>
-                  <p class="text-[11px] text-slate-500 mt-0.5">GoPay, OVO, atau Kartu</p>
+                <button type="button" data-pay-method="ewallet" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                  <p class="text-xs font-bold">E-Wallet</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">GoPay, OVO, DANA, ShopeePay</p>
                 </button>
               </div>
             </div>
 
-            <div id="pay-panel-qris" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-              <div class="flex flex-col sm:flex-row items-center gap-4">
-                <div id="qris-svg-container" class="w-36 h-36 bg-white p-2.5 rounded-xl border border-slate-200 flex items-center justify-center shrink-0"></div>
-                <div class="flex-1 text-center sm:text-left space-y-1.5">
-                  <div class="flex items-center justify-center sm:justify-start gap-2">
-                    <span class="px-2 py-0.5 rounded-md text-[11px] font-bold bg-slate-900 text-white">QRIS</span>
-                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-md">Sisa waktu: <span id="qris-countdown">14:59</span></span>
-                  </div>
-                  <p id="qris-merchant-label" class="text-sm font-bold text-slate-900">TokoKu Official</p>
-                  <p id="qris-nmid-label" class="text-xs text-slate-500">NMID: ID1026300981234</p>
-                  <p class="text-xs text-slate-600">Total Tagihan:</p>
-                  <p id="qris-total-amount" class="text-lg font-bold text-brand-600">Rp0</p>
-                </div>
-              </div>
-            </div>
-
-            <div id="pay-panel-va" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-              <div class="flex flex-wrap gap-2">
-                <button type="button" data-va-bank="BCA" class="va-bank-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-brand-600 text-white cursor-pointer">BCA VA</button>
-                <button type="button" data-va-bank="MANDIRI" class="va-bank-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-700 cursor-pointer">Mandiri VA</button>
-                <button type="button" data-va-bank="BRI" class="va-bank-btn px-3 py-1.5 rounded-lg text-xs font-bold bg-white border border-slate-300 text-slate-700 cursor-pointer">BRI VA</button>
-              </div>
-              <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2">
+            <!-- Panel 1: Transfer Bank -->
+            <div id="pay-panel-transfer" class="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+              <div class="bg-white border border-slate-200 rounded-xl p-3.5 flex items-center justify-between gap-3">
                 <div>
-                  <p class="text-xs text-slate-500">Nomor Virtual Account (<span id="va-bank-name">BCA</span>)</p>
-                  <p id="va-number-display" class="text-base font-bold tracking-wider text-slate-900 mt-0.5">8801081234567890</p>
+                  <p class="text-xs text-slate-500">Rekening Tujuan (<span id="transfer-bank-label">BCA</span>)</p>
+                  <p id="transfer-account-display" class="text-base font-bold tracking-wider text-slate-900 mt-0.5">1234567890</p>
+                  <p id="transfer-holder-display" class="text-xs text-slate-600 mt-0.5">a.n. TokoKu Official</p>
                 </div>
-                <button id="copy-va-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 cursor-pointer">Salin</button>
+                <button id="copy-transfer-btn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 cursor-pointer shrink-0">Salin No. Rek</button>
               </div>
-              <p class="text-xs text-slate-600">Total Transfer: <span id="va-total-amount" class="font-bold text-brand-600">Rp0</span></p>
+              <p class="text-xs text-slate-600">Total Transfer: <span id="transfer-total-amount" class="font-bold text-brand-600">Rp0</span></p>
             </div>
 
-            <div id="pay-panel-ewallet_card" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+            <!-- Panel 2: E-Wallet -->
+            <div id="pay-panel-ewallet" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
-                  <label for="ewallet-channel" class="block text-xs font-semibold text-slate-700 mb-1">Kanal Pembayaran</label>
+                  <label for="ewallet-channel" class="block text-xs font-semibold text-slate-700 mb-1">Pilih E-Wallet</label>
                   <select id="ewallet-channel" class="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg">
                     <option value="GoPay">GoPay</option>
                     <option value="OVO">OVO</option>
                     <option value="DANA">DANA</option>
-                    <option value="Kartu Debit / Kredit">Kartu Debit / Kredit</option>
+                    <option value="ShopeePay">ShopeePay</option>
                   </select>
                 </div>
                 <div>
-                  <label for="ewallet-account" class="block text-xs font-semibold text-slate-700 mb-1">No. Akun / 4 Digit Terakhir Kartu</label>
-                  <input id="ewallet-account" type="text" placeholder="0812xxxx atau 4242" class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg" />
+                  <label for="ewallet-account" class="block text-xs font-semibold text-slate-700 mb-1">No. HP / Akun E-Wallet Pengirim</label>
+                  <input id="ewallet-account" type="text" placeholder="0812xxxxxxxx" class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg" />
                 </div>
               </div>
-              <p class="text-xs text-slate-600">Total Tagihan: <span id="ewallet-total-amount" class="font-bold text-brand-600">Rp0</span></p>
+              <div class="bg-white border border-slate-200 rounded-xl p-3 flex items-center justify-between gap-2 text-xs">
+                <span class="text-slate-600">Tujuan E-Wallet Toko: <strong id="ewallet-dest-display" class="text-slate-900">081234567890</strong></span>
+                <span class="text-slate-600">Total: <strong id="ewallet-total-amount" class="text-brand-600">Rp0</strong></span>
+              </div>
             </div>
 
             <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2 text-xs">
@@ -527,15 +508,23 @@
                 <input id="set-free-shipping" type="number" min="0" step="5000" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
               </div>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div>
-                <label for="set-qris-nmid" class="block text-xs font-semibold text-slate-700 mb-1">NMID QRIS</label>
-                <input id="set-qris-nmid" type="text" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+                <label for="set-transfer-bank" class="block text-xs font-semibold text-slate-700 mb-1">Bank Transfer</label>
+                <input id="set-transfer-bank" type="text" placeholder="BCA / Mandiri / BRI" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
               </div>
               <div>
-                <label for="set-va-prefix" class="block text-xs font-semibold text-slate-700 mb-1">Prefix Virtual Account</label>
-                <input id="set-va-prefix" type="text" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+                <label for="set-transfer-account" class="block text-xs font-semibold text-slate-700 mb-1">No. Rekening Transfer</label>
+                <input id="set-transfer-account" type="text" placeholder="1234567890" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
               </div>
+              <div>
+                <label for="set-transfer-holder" class="block text-xs font-semibold text-slate-700 mb-1">Atas Nama Rekening</label>
+                <input id="set-transfer-holder" type="text" placeholder="TokoKu Official" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+              </div>
+            </div>
+            <div>
+              <label for="set-ewallet-number" class="block text-xs font-semibold text-slate-700 mb-1">Nomor HP / Akun E-Wallet Toko</label>
+              <input id="set-ewallet-number" type="text" placeholder="081234567890" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
               <button id="reset-default-data-btn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 cursor-pointer">Reset Data Bawaan</button>
@@ -612,8 +601,10 @@
         location: 'Bandung & Sekitarnya',
         shippingFee: 15000,
         freeShippingMin: 250000,
-        qrisNmid: 'ID1026300981234',
-        vaPrefix: '880108123456',
+        transferBank: 'BCA',
+        transferAccount: '1234567890',
+        transferHolder: 'TokoKu Official',
+        ewalletNumber: '081234567890',
       },
       products: [
         {
@@ -692,10 +683,8 @@
     let searchQuery = '';
     let selectedProduct = null;
     let selectedVariant = '';
-    let selectedPayMethod = 'qris';
-    let selectedVaBank = 'BCA';
+    let selectedPayMethod = 'transfer';
     let activeLiveProduct = null;
-    let qrisTimerInterval = null;
 
     function formatRupiah(num) {
       return 'Rp' + Math.max(0, Math.round(Number(num) || 0)).toLocaleString('id-ID');
@@ -1162,61 +1151,19 @@
       document.getElementById('cart-drawer').classList.add('hidden');
     }
 
-    function renderQrisSvg(payloadText) {
-      const container = document.getElementById('qris-svg-container');
-      if (!container) return;
-      let hash = 0;
-      for (let i = 0; i < payloadText.length; i++) {
-        hash = ((hash << 5) - hash) + payloadText.charCodeAt(i);
-        hash |= 0;
-      }
-      const size = 15;
-      let rects = '';
-      for (let r = 0; r < size; r++) {
-        for (let c = 0; c < size; c++) {
-          const isFinder = (r < 4 && c < 4) || (r < 4 && c >= size - 4) || (r >= size - 4 && c < 4);
-          const bit = isFinder
-            ? ((r === 0 || r === 3 || c === 0 || c === 3) || (r >= 1 && r <= 2 && c >= 1 && c <= 2))
-            : (((hash >> ((r * size + c) % 28)) ^ (r * 7 + c * 13)) & 1) === 1;
-          if (bit) {
-            rects += `<rect x="${c * 8}" y="${r * 8}" width="8" height="8" fill="#0f172a"/>`;
-          }
-        }
-      }
-      container.innerHTML = `<svg viewBox="0 0 ${size * 8} ${size * 8}" class="w-full h-full">${rects}</svg>`;
-    }
-
-    function startQrisCountdown() {
-      if (qrisTimerInterval) clearInterval(qrisTimerInterval);
-      let remaining = 15 * 60 - 1;
-      const el = document.getElementById('qris-countdown');
-      const tick = () => {
-        const m = String(Math.floor(remaining / 60)).padStart(2, '0');
-        const s = String(remaining % 60).padStart(2, '0');
-        if (el) el.textContent = `${m}:${s}`;
-        remaining = remaining > 0 ? remaining - 1 : 15 * 60 - 1;
-      };
-      tick();
-      qrisTimerInterval = setInterval(tick, 1000);
-    }
-
     function updateCheckoutSummary() {
       const addr = document.getElementById('buyer-address').value;
       const detectedKey = detectZoneFromAddress(addr);
       const calc = calculateTotals(addr.trim().length > 4 ? detectedKey : state.shippingZone);
 
       document.getElementById('checkout-detected-zone').textContent = `${calc.zoneLabel} (${calc.shipping === 0 ? 'Gratis Ongkir' : formatRupiah(calc.shipping)})`;
-      document.getElementById('qris-merchant-label').textContent = `${state.store.name} Official`;
-      document.getElementById('qris-nmid-label').textContent = `NMID: ${state.store.qrisNmid || 'ID1026300981234'}`;
-      document.getElementById('qris-total-amount').textContent = formatRupiah(calc.total);
-      document.getElementById('va-total-amount').textContent = formatRupiah(calc.total);
+      document.getElementById('transfer-bank-label').textContent = state.store.transferBank || 'BCA';
+      document.getElementById('transfer-account-display').textContent = state.store.transferAccount || '1234567890';
+      document.getElementById('transfer-holder-display').textContent = `a.n. ${state.store.transferHolder || state.store.name}`;
+      document.getElementById('transfer-total-amount').textContent = formatRupiah(calc.total);
+      document.getElementById('ewallet-dest-display').textContent = state.store.ewalletNumber || '081234567890';
       document.getElementById('ewallet-total-amount').textContent = formatRupiah(calc.total);
       document.getElementById('checkout-final-total').textContent = formatRupiah(calc.total);
-
-      const bankCodeMap = { BCA: '014', MANDIRI: '008', BRI: '002' };
-      const prefix = (state.store.vaPrefix || '880108123456').replace(/\D/g, '').slice(0, 12) || '880108123456';
-      document.getElementById('va-bank-name').textContent = selectedVaBank;
-      document.getElementById('va-number-display').textContent = `${bankCodeMap[selectedVaBank] || '014'}${prefix}`;
 
       document.getElementById('checkout-items-summary').innerHTML = state.cart.map((item) => `
         <div class="flex justify-between gap-2">
@@ -1224,8 +1171,6 @@
           <span class="font-semibold shrink-0">${formatRupiah(item.price * item.qty)}</span>
         </div>
       `).join('');
-
-      renderQrisSvg(`${state.store.name}|${calc.total}|${Date.now().toString().slice(-5)}`);
     }
 
     function openCheckoutModal() {
@@ -1239,12 +1184,10 @@
       document.getElementById('checkout-status-badge').textContent = 'Menunggu Pembayaran';
       document.getElementById('checkout-status-badge').className = 'px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-100 text-amber-800';
       updateCheckoutSummary();
-      startQrisCountdown();
       document.getElementById('checkout-modal').classList.remove('hidden');
     }
 
     function closeCheckoutModal() {
-      if (qrisTimerInterval) clearInterval(qrisTimerInterval);
       document.getElementById('checkout-modal').classList.add('hidden');
     }
 
@@ -1363,8 +1306,10 @@
       document.getElementById('set-store-tagline').value = state.store.tagline || '';
       document.getElementById('set-shipping-fee').value = Number(state.store.shippingFee) || 0;
       document.getElementById('set-free-shipping').value = Number(state.store.freeShippingMin) || 0;
-      document.getElementById('set-qris-nmid').value = state.store.qrisNmid || '';
-      document.getElementById('set-va-prefix').value = state.store.vaPrefix || '';
+      document.getElementById('set-transfer-bank').value = state.store.transferBank || 'BCA';
+      document.getElementById('set-transfer-account').value = state.store.transferAccount || '';
+      document.getElementById('set-transfer-holder').value = state.store.transferHolder || '';
+      document.getElementById('set-ewallet-number').value = state.store.ewalletNumber || '';
 
       renderSettingsLists();
       switchSettingsTab(initialTab);
@@ -1495,29 +1440,15 @@
               active ? 'bg-brand-50 border-brand-600 text-brand-900' : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
             }`;
           });
-          document.getElementById('pay-panel-qris').classList.toggle('hidden', selectedPayMethod !== 'qris');
-          document.getElementById('pay-panel-va').classList.toggle('hidden', selectedPayMethod !== 'va');
-          document.getElementById('pay-panel-ewallet_card').classList.toggle('hidden', selectedPayMethod !== 'ewallet_card');
+          document.getElementById('pay-panel-transfer').classList.toggle('hidden', selectedPayMethod !== 'transfer');
+          document.getElementById('pay-panel-ewallet').classList.toggle('hidden', selectedPayMethod !== 'ewallet');
         });
       });
 
-      document.querySelectorAll('.va-bank-btn').forEach((btn) => {
-        btn.addEventListener('click', () => {
-          selectedVaBank = btn.dataset.vaBank;
-          document.querySelectorAll('.va-bank-btn').forEach((b) => {
-            const active = b.dataset.vaBank === selectedVaBank;
-            b.className = `va-bank-btn px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer ${
-              active ? 'bg-brand-600 text-white' : 'bg-white border border-slate-300 text-slate-700'
-            }`;
-          });
-          updateCheckoutSummary();
-        });
-      });
-
-      document.getElementById('copy-va-btn').addEventListener('click', () => {
-        const vaNum = document.getElementById('va-number-display').textContent;
-        navigator.clipboard?.writeText(vaNum);
-        showToast('Nomor Virtual Account disalin.', 'success');
+      document.getElementById('copy-transfer-btn')?.addEventListener('click', () => {
+        const rek = document.getElementById('transfer-account-display').textContent;
+        navigator.clipboard?.writeText(rek);
+        showToast('Nomor rekening disalin.', 'success');
       });
 
       document.getElementById('checkout-form').addEventListener('submit', (e) => {
@@ -1534,16 +1465,15 @@
         const nowStr = new Date().toLocaleString('id-ID');
 
         const paymentLabelMap = {
-          qris: 'QRIS',
-          va: `Virtual Account (${selectedVaBank})`,
-          ewallet_card: `${document.getElementById('ewallet-channel').value} (${document.getElementById('ewallet-account').value.trim() || 'Langsung'})`,
+          transfer: `Transfer (${state.store.transferBank || 'Bank'} ${state.store.transferAccount || ''})`.trim(),
+          ewallet: `${document.getElementById('ewallet-channel').value} (${document.getElementById('ewallet-account').value.trim() || 'E-Wallet'})`,
         };
 
         const orderRecord = {
           id: orderId,
           date: nowStr,
           status: 'LUNAS',
-          paymentMethod: paymentLabelMap[selectedPayMethod] || 'QRIS',
+          paymentMethod: paymentLabelMap[selectedPayMethod] || 'Transfer Bank',
           buyer: { name: buyerName, phone: buyerPhone, address: buyerAddress, note: buyerNote },
           zoneLabel: calc.zoneLabel,
           items: [...state.cart],
@@ -1617,14 +1547,16 @@
           tagline: document.getElementById('set-store-tagline').value.trim(),
           shippingFee: Math.max(0, Number(document.getElementById('set-shipping-fee').value) || 0),
           freeShippingMin: Math.max(0, Number(document.getElementById('set-free-shipping').value) || 0),
-          qrisNmid: document.getElementById('set-qris-nmid').value.trim() || 'ID1026300981234',
-          vaPrefix: document.getElementById('set-va-prefix').value.trim() || '880108123456',
+          transferBank: document.getElementById('set-transfer-bank').value.trim() || 'BCA',
+          transferAccount: document.getElementById('set-transfer-account').value.trim() || '1234567890',
+          transferHolder: document.getElementById('set-transfer-holder').value.trim() || 'TokoKu Official',
+          ewalletNumber: document.getElementById('set-ewallet-number').value.trim() || '081234567890',
         };
         saveToStorage();
         syncStoreUI();
         renderCart();
         closeSettingsModal();
-        showToast('Setingan toko disimpan.', 'success');
+        showToast('Setingan toko & pembayaran disimpan.', 'success');
       });
 
       document.getElementById('reset-default-data-btn').addEventListener('click', () => {
