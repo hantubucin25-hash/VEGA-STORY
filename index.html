@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>TokoKu — Katalog Produk & Toko Online</title>
-  <meta name="description" content="TokoKu — Katalog produk pilihan, hitung ongkir otomatis, pembayaran Transfer Bank & E-Wallet, dan belanja langsung di web dengan cepat." />
+  <meta name="description" content="TokoKu — Katalog produk pilihan, hitung ongkir otomatis, pembayaran Transfer Bank, E-Wallet & QRIS, serta belanja langsung di web dengan cepat." />
   <meta name="robots" content="index, follow" />
   <meta name="google-site-verification" content="1H-EHvCv1t5mWq2fqoP71v4ZGmtgTApRRxMhgjQh0sA" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="TokoKu — Katalog Produk & Toko Online" />
-  <meta property="og:description" content="Belanja langsung di web dengan katalog produk lengkap, promo, ongkir otomatis, dan pembayaran Transfer Bank & E-Wallet." />
+  <meta property="og:description" content="Belanja langsung di web dengan katalog produk lengkap, promo, ongkir otomatis, dan pembayaran Transfer Bank, E-Wallet & QRIS." />
   <meta property="og:url" content="https://hantubucin25-hash.github.io/" />
   <script type="application/ld+json" id="store-jsonld">
     {
@@ -132,7 +132,7 @@
       <div class="mb-5 bg-white border border-slate-200 rounded-2xl p-3.5 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-2xs">
         <div class="flex items-center gap-2.5 text-xs sm:text-sm text-slate-600">
           <span class="inline-flex h-2.5 w-2.5 rounded-full bg-emerald-500"></span>
-          <span>Katalog, keranjang, ongkir otomatis, & pembayaran Transfer / E-Wallet aktif di halaman web ini.</span>
+          <span>Katalog, keranjang, ongkir otomatis, & pembayaran Transfer / E-Wallet / QRIS aktif di halaman web ini.</span>
         </div>
         <div class="flex flex-wrap items-center gap-2">
           <button type="button" data-quick-access="add-product" class="hidden px-3 py-1.5 rounded-xl text-xs font-semibold bg-brand-50 text-brand-700 hover:bg-brand-100 transition cursor-pointer">+ Tambah Produk</button>
@@ -296,7 +296,7 @@
     </div>
   </div>
 
-  <!-- MODAL 2: CHECKOUT & PEMBAYARAN (TRANSFER & E-WALLET) -->
+  <!-- MODAL 2: CHECKOUT & PEMBAYARAN (TRANSFER, E-WALLET & QRIS) -->
   <div id="checkout-modal" class="fixed inset-0 z-[60] hidden" role="dialog" aria-modal="true" aria-labelledby="checkout-modal-title">
     <div id="checkout-backdrop" class="fixed inset-0 bg-slate-900/50 backdrop-blur-[2px] drawer-backdrop"></div>
     <div class="fixed inset-0 overflow-y-auto flex items-center justify-center p-4">
@@ -342,14 +342,18 @@
 
             <div class="space-y-2">
               <label class="block text-sm font-medium text-slate-700">Metode Pembayaran</label>
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                 <button type="button" data-pay-method="transfer" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-brand-50 border-brand-600 text-brand-900">
                   <p class="text-xs font-bold">Transfer Bank</p>
-                  <p class="text-[11px] text-slate-600 mt-0.5">Transfer manual / m-banking / ATM</p>
+                  <p class="text-[11px] text-slate-600 mt-0.5">Transfer manual / m-banking</p>
                 </button>
                 <button type="button" data-pay-method="ewallet" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
-                  <p class="text-xs font-bold">E-Wallet</p>
-                  <p class="text-[11px] text-slate-500 mt-0.5">GoPay, OVO, DANA, ShopeePay</p>
+                  <p class="text-xs font-bold">E-Wallet (DANA, dll)</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Hubungkan akun DANA pembeli</p>
+                </button>
+                <button type="button" data-pay-method="qris" class="pay-method-tab p-3 rounded-xl border text-left transition cursor-pointer bg-white border-slate-200 text-slate-700 hover:bg-slate-50">
+                  <p class="text-xs font-bold">QRIS</p>
+                  <p class="text-[11px] text-slate-500 mt-0.5">Scan QR semua aplikasi</p>
                 </button>
               </div>
             </div>
@@ -367,22 +371,26 @@
               <p class="text-xs text-slate-600">Total Transfer: <span id="transfer-total-amount" class="font-bold text-brand-600">Rp0</span></p>
             </div>
 
-            <!-- Panel 2: E-Wallet -->
+            <!-- Panel 2: E-Wallet (Koneksi Akun DANA Pembeli) -->
             <div id="pay-panel-ewallet" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label for="ewallet-channel" class="block text-xs font-semibold text-slate-700 mb-1">Pilih E-Wallet</label>
                   <select id="ewallet-channel" class="w-full px-3 py-2 text-xs font-semibold bg-white border border-slate-300 rounded-lg">
+                    <option value="DANA">DANA</option>
                     <option value="GoPay">GoPay</option>
                     <option value="OVO">OVO</option>
-                    <option value="DANA">DANA</option>
                     <option value="ShopeePay">ShopeePay</option>
                   </select>
                 </div>
                 <div>
-                  <label for="ewallet-account" class="block text-xs font-semibold text-slate-700 mb-1">No. Akun / HP Pengirim (Opsional)</label>
-                  <input id="ewallet-account" type="text" placeholder="Contoh: 0812xxxx atau akun pengirim" class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg" />
+                  <label id="ewallet-buyer-label" for="ewallet-account" class="block text-xs font-semibold text-slate-700 mb-1">Akun / No. HP DANA Pembeli <span class="text-rose-500">*</span></label>
+                  <input id="ewallet-account" type="text" placeholder="Contoh: 0812xxxxxxxx" class="w-full px-3 py-2 text-xs bg-white border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500" />
                 </div>
+              </div>
+              <div id="dana-link-banner" class="bg-sky-50 border border-sky-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2 text-xs text-sky-900">
+                <span id="dana-link-status">Akun DANA pembeli belum diisi. Masukkan nomor/akun DANA pembeli.</span>
+                <button id="verify-dana-btn" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-bold bg-sky-600 hover:bg-sky-700 text-white shrink-0 cursor-pointer">Hubungkan</button>
               </div>
               <div class="bg-white border border-slate-200 rounded-xl p-3 flex flex-wrap items-center justify-between gap-2 text-xs">
                 <div class="flex items-center gap-2">
@@ -390,6 +398,20 @@
                   <button id="copy-ewallet-btn" type="button" class="px-2.5 py-1 rounded-lg text-[11px] font-semibold bg-slate-100 hover:bg-slate-200 text-slate-800 cursor-pointer">Salin</button>
                 </div>
                 <span class="text-slate-600">Total: <strong id="ewallet-total-amount" class="text-brand-600">Rp0</strong></span>
+              </div>
+            </div>
+
+            <!-- Panel 3: QRIS -->
+            <div id="pay-panel-qris" class="hidden bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
+              <div class="bg-white border border-slate-200 rounded-xl p-4 flex flex-col sm:flex-row items-center gap-4">
+                <img id="qris-preview-image" src="" alt="Kode QRIS Toko" class="w-40 h-40 object-contain rounded-xl border border-slate-200 bg-white p-1.5 shrink-0" />
+                <div class="space-y-1.5 text-center sm:text-left flex-1">
+                  <span class="inline-block px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-indigo-50 text-brand-700 border border-indigo-200">QRIS STANDAR NASIONAL</span>
+                  <p class="text-sm font-bold text-slate-900" id="qris-merchant-name">TokoKu Official</p>
+                  <p class="text-xs text-slate-600">NMID / Referensi: <strong id="qris-nmid-display" class="text-slate-800">ID1026000012345</strong></p>
+                  <p class="text-xs text-slate-600">Nominal Pembayaran: <strong id="qris-total-amount" class="text-brand-600 text-sm">Rp0</strong></p>
+                  <p class="text-[11px] text-slate-500">Scan kode QR menggunakan DANA, GoPay, OVO, ShopeePay, atau mobile banking lalu klik konfirmasi di bawah.</p>
+                </div>
               </div>
             </div>
 
@@ -525,9 +547,19 @@
                 <input id="set-transfer-holder" type="text" placeholder="TokoKu Official" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
               </div>
             </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label for="set-ewallet-number" class="block text-xs font-semibold text-slate-700 mb-1">Nomor / Akun E-Wallet Toko</label>
+                <input id="set-ewallet-number" type="text" placeholder="089631157242" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+              </div>
+              <div>
+                <label for="set-qris-nmid" class="block text-xs font-semibold text-slate-700 mb-1">NMID / Kode QRIS Toko</label>
+                <input id="set-qris-nmid" type="text" placeholder="ID1026000012345" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+              </div>
+            </div>
             <div>
-              <label for="set-ewallet-number" class="block text-xs font-semibold text-slate-700 mb-1">Nomor / Akun E-Wallet Toko</label>
-              <input id="set-ewallet-number" type="text" placeholder="089631157242" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
+              <label for="set-qris-image" class="block text-xs font-semibold text-slate-700 mb-1">URL Gambar QRIS (Opsional, kosongkan untuk QR otomatis)</label>
+              <input id="set-qris-image" type="url" placeholder="https://contoh.com/qris-toko.png" class="w-full px-3 py-2 text-sm border border-slate-300 rounded-xl" />
             </div>
             <div class="flex flex-wrap items-center justify-between gap-2 pt-2">
               <button id="reset-default-data-btn" type="button" class="px-3.5 py-2 rounded-xl text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 cursor-pointer">Reset Data Bawaan</button>
@@ -608,6 +640,8 @@
         transferAccount: '1234567890',
         transferHolder: 'TokoKu Official',
         ewalletNumber: '089631157242',
+        qrisNmid: 'ID1026000012345',
+        qrisImage: '',
       },
       products: [
         {
@@ -687,6 +721,7 @@
     let selectedProduct = null;
     let selectedVariant = '';
     let selectedPayMethod = 'transfer';
+    let isDanaLinked = false;
     let activeLiveProduct = null;
 
     function formatRupiah(num) {
@@ -709,6 +744,41 @@
         el.style.opacity = '0';
         setTimeout(() => el.remove(), 200);
       }, 2800);
+    }
+
+    function buildQrisUrl(amount) {
+      if (state.store.qrisImage && state.store.qrisImage.trim()) {
+        return state.store.qrisImage.trim();
+      }
+      const payload = `QRIS|${state.store.name}|${state.store.qrisNmid || 'ID1026000012345'}|${Math.max(0, Math.round(Number(amount) || 0))}`;
+      return `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(payload)}`;
+    }
+
+    function syncEwalletUi() {
+      const channel = document.getElementById('ewallet-channel').value;
+      const buyerAcc = document.getElementById('ewallet-account').value.trim();
+      const labelEl = document.getElementById('ewallet-buyer-label');
+      const statusEl = document.getElementById('dana-link-status');
+      const bannerEl = document.getElementById('dana-link-banner');
+
+      if (channel === 'DANA') {
+        labelEl.innerHTML = 'Akun / No. HP DANA Pembeli <span class="text-rose-500">*</span>';
+        document.getElementById('ewallet-account').placeholder = 'Contoh: 0812xxxxxxxx';
+        bannerEl.classList.remove('hidden');
+        if (isDanaLinked && buyerAcc) {
+          statusEl.textContent = `Terhubung dengan akun DANA pembeli: ${buyerAcc}`;
+          bannerEl.className = 'bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2 text-xs text-emerald-900';
+        } else {
+          statusEl.textContent = buyerAcc
+            ? `Akun DANA pembeli (${buyerAcc}) siap dihubungkan.`
+            : 'Masukkan nomor/akun DANA pembeli lalu klik Hubungkan.';
+          bannerEl.className = 'bg-sky-50 border border-sky-200 rounded-xl px-3 py-2 flex items-center justify-between gap-2 text-xs text-sky-900';
+        }
+      } else {
+        labelEl.innerHTML = `No. HP / Akun ${channel} Pengirim (Opsional)`;
+        document.getElementById('ewallet-account').placeholder = `Contoh: 0812xxxx (${channel})`;
+        bannerEl.classList.add('hidden');
+      }
     }
 
     function setAdminControlsVisible(visible) {
@@ -1164,8 +1234,16 @@
       document.getElementById('transfer-account-display').textContent = state.store.transferAccount || '1234567890';
       document.getElementById('transfer-holder-display').textContent = `a.n. ${state.store.transferHolder || state.store.name}`;
       document.getElementById('transfer-total-amount').textContent = formatRupiah(calc.total);
+
       document.getElementById('ewallet-dest-display').textContent = state.store.ewalletNumber || '089631157242';
       document.getElementById('ewallet-total-amount').textContent = formatRupiah(calc.total);
+      syncEwalletUi();
+
+      document.getElementById('qris-merchant-name').textContent = state.store.name || 'TokoKu';
+      document.getElementById('qris-nmid-display').textContent = state.store.qrisNmid || 'ID1026000012345';
+      document.getElementById('qris-total-amount').textContent = formatRupiah(calc.total);
+      document.getElementById('qris-preview-image').src = buildQrisUrl(calc.total);
+
       document.getElementById('checkout-final-total').textContent = formatRupiah(calc.total);
 
       document.getElementById('checkout-items-summary').innerHTML = state.cart.map((item) => `
@@ -1182,6 +1260,7 @@
         return;
       }
       closeCartDrawer();
+      isDanaLinked = false;
       document.getElementById('checkout-form-view').classList.remove('hidden');
       document.getElementById('receipt-print-area').classList.add('hidden');
       document.getElementById('checkout-status-badge').textContent = 'Menunggu Pembayaran';
@@ -1313,6 +1392,8 @@
       document.getElementById('set-transfer-account').value = state.store.transferAccount || '';
       document.getElementById('set-transfer-holder').value = state.store.transferHolder || '';
       document.getElementById('set-ewallet-number').value = state.store.ewalletNumber || '';
+      document.getElementById('set-qris-nmid').value = state.store.qrisNmid || 'ID1026000012345';
+      document.getElementById('set-qris-image').value = state.store.qrisImage || '';
 
       renderSettingsLists();
       switchSettingsTab(initialTab);
@@ -1434,6 +1515,25 @@
       document.getElementById('checkout-backdrop').addEventListener('click', closeCheckoutModal);
       document.getElementById('buyer-address').addEventListener('input', updateCheckoutSummary);
 
+      document.getElementById('ewallet-channel').addEventListener('change', () => {
+        isDanaLinked = false;
+        syncEwalletUi();
+      });
+      document.getElementById('ewallet-account').addEventListener('input', () => {
+        isDanaLinked = false;
+        syncEwalletUi();
+      });
+      document.getElementById('verify-dana-btn').addEventListener('click', () => {
+        const acc = document.getElementById('ewallet-account').value.trim();
+        if (!acc) {
+          showToast('Masukkan nomor atau akun DANA pembeli terlebih dahulu.', 'error');
+          return;
+        }
+        isDanaLinked = true;
+        syncEwalletUi();
+        showToast(`Akun DANA (${acc}) berhasil dihubungkan.`, 'success');
+      });
+
       document.querySelectorAll('.pay-method-tab').forEach((tab) => {
         tab.addEventListener('click', () => {
           selectedPayMethod = tab.dataset.payMethod;
@@ -1445,6 +1545,7 @@
           });
           document.getElementById('pay-panel-transfer').classList.toggle('hidden', selectedPayMethod !== 'transfer');
           document.getElementById('pay-panel-ewallet').classList.toggle('hidden', selectedPayMethod !== 'ewallet');
+          document.getElementById('pay-panel-qris').classList.toggle('hidden', selectedPayMethod !== 'qris');
         });
       });
 
@@ -1468,6 +1569,15 @@
         const buyerNote = document.getElementById('buyer-note').value.trim();
         if (!buyerName || !buyerPhone || !buyerAddress) return;
 
+        const ewChannel = document.getElementById('ewallet-channel').value;
+        const ewAccount = document.getElementById('ewallet-account').value.trim();
+
+        if (selectedPayMethod === 'ewallet' && ewChannel === 'DANA' && !ewAccount) {
+          showToast('Wajib mengisi akun / nomor DANA pembeli untuk pembayaran DANA.', 'error');
+          document.getElementById('ewallet-account').focus();
+          return;
+        }
+
         const detectedZone = detectZoneFromAddress(buyerAddress);
         const calc = calculateTotals(detectedZone);
         const orderId = 'INV-' + Date.now().toString().slice(-6);
@@ -1475,7 +1585,10 @@
 
         const paymentLabelMap = {
           transfer: `Transfer (${state.store.transferBank || 'Bank'} ${state.store.transferAccount || ''})`.trim(),
-          ewallet: `${document.getElementById('ewallet-channel').value} ke ${state.store.ewalletNumber || '089631157242'} (${document.getElementById('ewallet-account').value.trim() || 'E-Wallet'})`,
+          ewallet: ewChannel === 'DANA'
+            ? `DANA Pembeli (${ewAccount}) -> Toko (${state.store.ewalletNumber || '089631157242'})`
+            : `${ewChannel} (${ewAccount || 'E-Wallet'}) -> Toko (${state.store.ewalletNumber || '089631157242'})`,
+          qris: `QRIS (${state.store.qrisNmid || 'ID1026000012345'})`,
         };
 
         const orderRecord = {
@@ -1516,6 +1629,7 @@
         document.getElementById('receipt-details').innerHTML = `
           <p><strong>Toko:</strong> ${state.store.name}</p>
           <p><strong>Pembeli:</strong> ${buyerName} (${buyerPhone})</p>
+          <p><strong>Metode Bayar:</strong> ${orderRecord.paymentMethod}</p>
           <p><strong>Alamat:</strong> ${buyerAddress} <em>(${calc.zoneLabel})</em></p>
           ${buyerNote ? `<p><strong>Catatan:</strong> ${buyerNote}</p>` : ''}
           <hr class="border-slate-200 my-2" />
@@ -1560,6 +1674,8 @@
           transferAccount: document.getElementById('set-transfer-account').value.trim() || '1234567890',
           transferHolder: document.getElementById('set-transfer-holder').value.trim() || 'TokoKu Official',
           ewalletNumber: document.getElementById('set-ewallet-number').value.trim() || '089631157242',
+          qrisNmid: document.getElementById('set-qris-nmid').value.trim() || 'ID1026000012345',
+          qrisImage: document.getElementById('set-qris-image').value.trim(),
         };
         saveToStorage();
         syncStoreUI();
