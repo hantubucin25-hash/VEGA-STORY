@@ -1,0 +1,46 @@
+{
+  "storeName": "VEGA-STORY",
+  "tagline": "Digital Software & Source Code",
+  "adminPassword": "230393",
+  "paymentMethods": [
+    {
+      "id": "pay-1795615671588",
+      "label": "DANA",
+      "description": "089631157242",
+      "badge": "POPULER",
+      "icon": "wallet",
+      "enabled": true
+    }
+  ],
+  "products": [
+    {
+      "id": "app-1795617078462",
+      "name": "kasir pintal",
+      "category": "Keuangan & Kasir",
+      "platforms": [
+        "Web App",
+        "Source Code"
+      ],
+      "version": "v2",
+      "rating": 5,
+      "reviews": 1,
+      "price": 20000,
+      "status": "Tersedia",
+      "icon": "sparkles",
+      "color": "from-emerald-600 to-teal-600",
+      "size": "28.0 MB",
+      "downloadFilename": "kasir_pintal_v1.0_Paket.HTML",
+      "downloadUrl": "https://drive.google.com/file/d/1BdgNnPNM_bSqxhttMvwOCNWf5-vxKHUH/view?usp=drive_link",
+      "downloadPayload": "{\n  \"store\": \"VEGA-STORY\",\n  \"product\": \"kasir pintal\",\n  \"category\": \"Otomatis\",\n  \"version\": \"v2\",\n  \"licenseType\": \"LIFETIME\",\n  \"editionPriceIDR\": 20000,\n  \"platforms\": [\n    \"Web App\",\n    \"Source Code\"\n  ],\n  \"summary\": \"kasir pintal (v2) adalah aplikasi keuangan & kasir berbasis Web App, Source Code yang dirancang otomatis untuk mempercepat pencatatan transaksi harian, pembukuan arus kas, cetak bukti transaksi, dan penyusunan laporan keuangan.\",\n  \"includedFeatures\": [\n    \"Pencatatan transaksi & arus kas otomatis real-time\",\n    \"Rekap laporan harian & bulanan otomatis\",\n    \"Dukungan cetak struk & ekspor data laporan\",\n    \"Kompatibel penuh di Web App\",\n    \"Source Code\"\n  ],\n  \"activationGuide\": [\n    \"Simpan file paket ini sebagai arsip resmi pembelian Anda.\",\n    \"Salin License Key pada invoice lalu masukkan di menu Aktivasi Aplikasi.\",\n    \"Hubungi admin toko jika membutuhkan bantuan instalasi atau migrasi.\"\n  ],\n  \"generatedAt\": \"2026-11-25T14:31:08.205Z\"\n}",
+      "desc": "kasir pintal (v2) adalah aplikasi keuangan & kasir berbasis Web App, Source Code yang dirancang otomatis untuk mempercepat pencatatan transaksi harian, pembukuan arus kas, cetak bukti transaksi, dan penyusunan laporan keuangan.",
+      "features": [
+        "Pencatatan transaksi & arus kas otomatis real-time",
+        "Rekap laporan harian & bulanan otomatis",
+        "Dukungan cetak struk & ekspor data laporan",
+        "Kompatibel penuh di Web App",
+        "Source Code"
+      ],
+      "changelog": "v2 - Rilis perdana di VEGA-STORY."
+    }
+  ]
+}
