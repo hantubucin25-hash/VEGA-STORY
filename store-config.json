@@ -1,0 +1,24 @@
+{
+  "storeName": "VEGA-STORY",
+  "tagline": "Digital Software & Source Code",
+  "adminPassword": "230393",
+  "paymentMethods": [
+    {
+      "id": "pay-1795673350480",
+      "label": "DANA",
+      "description": "089631157242",
+      "badge": "POPULER",
+      "icon": "wallet",
+      "enabled": true
+    }
+  ],
+  "products": [],
+  "firebaseConfig": {
+    "apiKey": "AIzaSyD7-QWMp5q0cOun9DaW8u0rVbNYQ9_aSaI",
+    "authDomain": "vega-story.firebaseapp.com",
+    "databaseURL": "https://vega-story-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "projectId": "vega-story",
+    "storageBucket": "vega-story.appspot.com",
+    "appId": "1:1036623506876:web:7a23c9b6be7efb5fd58fb9"
+  }
+}
