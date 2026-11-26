@@ -1,0 +1,3077 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KatalogApp - Toko Aplikasi & Software Digital Profesional</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            500: '#6366f1',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            900: '#312e81',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbar untuk tampilan lebih bersih */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans antialiased selection:bg-brand-600 selection:text-white flex flex-col min-h-screen">
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+    <!-- Navbar Utama -->
+    <header class="sticky top-0 z-30 bg-white/90 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+                <!-- Logo & Nama Toko -->
+                <div class="flex items-center gap-2.5 cursor-pointer shrink-0" onclick="resetFilters()">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-brand-600 to-blue-600 flex items-center justify-center text-white shadow-md shadow-brand-500/20">
+                        <i data-lucide="layers" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <span id="store-brand-name" class="font-extrabold text-xl tracking-tight text-slate-900">Katalog<span class="text-brand-600">App</span></span>
+                        <span id="store-brand-tagline" class="hidden sm:block text-[10px] font-medium text-slate-400 -mt-1">Digital Software & Source Code</span>
+                    </div>
+                </div>
+
+                <!-- Kolom Pencarian Real-time (Desktop) -->
+                <div class="hidden md:flex flex-1 max-w-md mx-4">
+                    <div class="relative w-full">
+                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" id="search-input-desktop" oninput="handleSearch(this.value)" placeholder="Cari aplikasi POS, trading, pencatat keuangan..." class="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent focus:border-brand-500 focus:bg-white rounded-xl text-sm transition-all outline-none">
+                    </div>
+                </div>
+
+                <!-- Aksi Kanan: Pesanan Saya, Mode Admin, Keranjang -->
+                <div class="flex items-center gap-2 sm:gap-3">
+                    <!-- Tombol Pesanan Saya -->
+                    <button onclick="openOrdersModal()" class="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-slate-600 hover:text-brand-600 hover:bg-brand-50 transition-colors" title="Riwayat Pembelian & Unduhan">
+                        <i data-lucide="key-round" class="w-4 h-4"></i>
+                        <span class="hidden lg:inline">Lisensi & Unduhan Saya</span>
+                        <span id="orders-badge" class="hidden bg-emerald-100 text-emerald-700 text-xs font-bold px-1.5 py-0.5 rounded-full">0</span>
+                    </button>
+
+                    <!-- Tombol Keluar Mode Admin (Hanya tampil saat Admin aktif) -->
+                    <button id="exit-admin-btn" onclick="exitAdminMode()" class="hidden items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-semibold bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 transition-all">
+                        <i data-lucide="lock" class="w-4 h-4"></i>
+                        <span>Keluar Mode Admin</span>
+                    </button>
+
+                    <!-- Tombol Keranjang Belanja -->
+                    <button onclick="toggleCartDrawer(true)" class="relative p-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white shadow-sm shadow-brand-600/20 transition-all active:scale-95" aria-label="Keranjang Belanja">
+                        <i data-lucide="shopping-cart" class="w-5 h-5"></i>
+                        <span id="cart-badge" class="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[11px] font-bold w-5 h-5 flex items-center justify-center rounded-full border-2 border-white shadow-sm">0</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Kolom Pencarian (Mobile) -->
+            <div class="md:hidden pb-3">
+                <div class="relative w-full">
+                    <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" id="search-input-mobile" oninput="handleSearch(this.value)" placeholder="Cari aplikasi, APK, source code..." class="w-full pl-10 pr-4 py-2 bg-slate-100 border border-transparent focus:border-brand-500 focus:bg-white rounded-xl text-sm outline-none">
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Konten Utama -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        
+        <!-- VIEW 1: TOKO / KATALOG PUBLIK -->
+        <div id="store-view">
+            <!-- Hero Banner Ringkas -->
+            <div class="bg-gradient-to-r from-brand-900 via-brand-700 to-blue-600 rounded-2xl p-6 sm:p-8 text-white mb-8 shadow-lg relative overflow-hidden">
+                <div class="relative z-10 max-w-2xl">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/15 backdrop-blur-sm text-xs font-semibold mb-3 border border-white/20">
+                        <i data-lucide="sparkles" class="w-3.5 h-3.5 text-amber-300"></i>
+                        <span>Lisensi Lifetime & Gratis Update</span>
+                    </div>
+                    <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-2">Tingkatkan Bisnis & Produktivitas Anda</h1>
+                    <p class="text-brand-100 text-sm sm:text-base mb-5 leading-relaxed">Temukan berbagai aplikasi siap pakai, sistem kasir POS, alat bantu trading otomatis, hingga source code berkualitas tinggi dengan pengiriman instan.</p>
+                    <div class="flex flex-wrap items-center gap-3 text-xs font-medium text-brand-100">
+                        <span class="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-lg"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-300"></i> Aktivasi Lisensi Otomatis</span>
+                        <span class="flex items-center gap-1 bg-black/20 px-3 py-1.5 rounded-lg"><i data-lucide="tag" class="w-3.5 h-3.5 text-emerald-300"></i> Kode Promo: <strong class="text-white">HEMAT20</strong></span>
+                    </div>
+                </div>
+                <!-- Dekorasi Latar -->
+                <div class="hidden lg:block absolute right-8 -bottom-6 opacity-15 pointer-events-none">
+                    <i data-lucide="cpu" class="w-64 h-64"></i>
+                </div>
+            </div>
+
+            <!-- Bar Filter Kategori & Pengurutan -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <!-- Filter Pills -->
+                <div id="category-filters" class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+                    <!-- Di-render via JS -->
+                </div>
+
+                <!-- Dropdown Urutkan -->
+                <div class="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+                    <span class="text-xs text-slate-500 font-medium">Urutkan:</span>
+                    <select id="sort-select" onchange="handleSort(this.value)" class="bg-white border border-slate-200 text-slate-700 text-sm rounded-xl px-3 py-2 outline-none focus:border-brand-500 cursor-pointer">
+                        <option value="featured">Terpopuler</option>
+                        <option value="price-asc">Harga Terendah</option>
+                        <option value="price-desc">Harga Tertinggi</option>
+                        <option value="rating">Rating Tertinggi</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Info Hasil Pencarian -->
+            <div class="flex items-center justify-between mb-4">
+                <p id="catalog-count-info" class="text-sm text-slate-500 font-medium">Menampilkan semua produk</p>
+            </div>
+
+            <!-- Grid Katalog Produk -->
+            <div id="product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- Kartu Produk di-render via JS -->
+            </div>
+
+            <!-- Empty State jika pencarian tidak ditemukan -->
+            <div id="empty-state" class="hidden text-center py-16 bg-white rounded-2xl border border-slate-200">
+                <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <i data-lucide="search-x" class="w-8 h-8"></i>
+                </div>
+                <h3 class="text-lg font-bold text-slate-800 mb-1">Aplikasi Tidak Ditemukan</h3>
+                <p class="text-sm text-slate-500 mb-4">Coba gunakan kata kunci lain atau ubah filter kategori Anda.</p>
+                <button onclick="resetFilters()" class="px-4 py-2 bg-brand-600 text-white text-sm font-semibold rounded-xl hover:bg-brand-700 transition-colors">Reset Pencarian</button>
+            </div>
+        </div>
+
+        <!-- VIEW 2: PANEL ADMIN (KELOLA TOKO) -->
+        <div id="admin-view" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="px-2.5 py-0.5 bg-brand-100 text-brand-700 text-xs font-bold rounded-md">ADMIN DASHBOARD</span>
+                        <h2 class="text-xl font-bold text-slate-900">Kelola Katalog & Penjualan</h2>
+                    </div>
+                    <p class="text-sm text-slate-500 mt-1">Tambah aplikasi baru, perbarui harga, atau pantau simulasi pendapatan toko Anda.</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button onclick="openProductFormModal()" class="flex items-center gap-2 px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-sm transition-all">
+                        <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                        <span>Tambah Aplikasi Baru</span>
+                    </button>
+                    <button onclick="toggleAdminMode()" class="px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl transition-colors">
+                        Kembali ke Toko
+                    </button>
+                </div>
+            </div>
+
+            <!-- Statistik Ringkas Admin -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="package" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Total Produk Aktif</p>
+                        <p id="admin-stat-products" class="text-2xl font-extrabold text-slate-900">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Total Transaksi Berhasil</p>
+                        <p id="admin-stat-orders" class="text-2xl font-extrabold text-slate-900">0</p>
+                    </div>
+                </div>
+                <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="wallet" class="w-6 h-6"></i>
+                    </div>
+                    <div>
+                        <p class="text-xs font-medium text-slate-500">Total Pendapatan Simulasi</p>
+                        <p id="admin-stat-revenue" class="text-2xl font-extrabold text-slate-900">Rp 0</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pengaturan Toko & Keamanan Admin -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="sliders" class="w-4 h-4 text-brand-600"></i>
+                            Pengaturan Toko & Keamanan Akses
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">Perubahan disimpan otomatis ke penyimpanan lokal dan terkunci dari akses pembeli.</p>
+                    </div>
+                </div>
+                <form id="store-settings-form" onsubmit="saveStoreSettings(event)" class="grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Toko *</label>
+                        <input type="text" id="setting-store-name" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Tagline Toko *</label>
+                        <input type="text" id="setting-store-tagline" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kata Sandi Admin Baru *</label>
+                        <input type="text" id="setting-admin-password" required class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm font-mono focus:border-brand-500 outline-none">
+                    </div>
+                    <div class="sm:col-span-3 flex justify-end">
+                        <button type="submit" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                            <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                            <span>Simpan Pengaturan Toko</span>
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Pengaturan Metode Pembayaran di Admin -->
+                <div class="mt-6 pt-6 border-t border-slate-100 space-y-4">
+                    <div>
+                        <h4 class="font-bold text-slate-800 text-sm flex items-center gap-2">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-brand-600"></i>
+                            Metode Pembayaran Checkout
+                        </h4>
+                        <p class="text-xs text-slate-500 mt-0.5">Tambahkan, aktifkan/nonaktifkan, atau hapus pilihan metode pembayaran untuk pembeli.</p>
+                    </div>
+
+                    <form id="add-payment-method-form" onsubmit="addPaymentMethod(event)" class="grid grid-cols-1 sm:grid-cols-12 gap-3 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80">
+                        <div class="sm:col-span-4">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Nama Metode *</label>
+                            <input type="text" id="new-payment-label" required placeholder="Contoh: Transfer Bank BCA" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                        </div>
+                        <div class="sm:col-span-5">
+                            <label class="block text-[11px] font-semibold text-slate-700 mb-1">Keterangan / No. Rekening / Info *</label>
+                            <input type="text" id="new-payment-desc" required placeholder="Contoh: 1234567890 a/n KatalogApp" class="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                        </div>
+                        <div class="sm:col-span-3 flex items-end gap-2">
+                            <select id="new-payment-badge" class="flex-1 px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                                <option value="">Tanpa Badge</option>
+                                <option value="POPULER">POPULER</option>
+                                <option value="INSTAN">INSTAN</option>
+                                <option value="BARU">BARU</option>
+                            </select>
+                            <button type="submit" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1 shrink-0">
+                                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                                <span>Tambah</span>
+                            </button>
+                        </div>
+                    </form>
+
+                    <div id="admin-payment-methods-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <!-- Daftar metode pembayaran di admin di-render via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabel Manajemen Produk -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-5 border-b border-slate-200 flex items-center justify-between">
+                    <h3 class="font-bold text-slate-800">Daftar Aplikasi di Katalog</h3>
+                    <button onclick="resetDefaultData()" class="text-xs text-rose-600 hover:underline font-medium">Reset Data Default</button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold text-slate-500 uppercase">
+                                <th class="py-3.5 px-4">Aplikasi</th>
+                                <th class="py-3.5 px-4">Kategori</th>
+                                <th class="py-3.5 px-4">Platform & Versi</th>
+                                <th class="py-3.5 px-4">Harga</th>
+                                <th class="py-3.5 px-4">Status</th>
+                                <th class="py-3.5 px-4 text-right">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-product-table" class="divide-y divide-slate-100 text-sm">
+                            <!-- Di-render via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Sinkronisasi Konfigurasi Eksternal (store-config.json di GitHub) -->
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+                    <div>
+                        <h3 class="font-bold text-slate-800 flex items-center gap-2">
+                            <i data-lucide="file-json" class="w-4 h-4 text-brand-600"></i>
+                            Konfigurasi Eksternal (<code class="font-mono text-xs bg-slate-100 px-1.5 py-0.5 rounded">store-config.json</code>)
+                        </h3>
+                        <p class="text-xs text-slate-500 mt-0.5">
+                            Simpan file <code class="font-mono">store-config.json</code> di folder yang sama dengan <code class="font-mono">index.html</code> di GitHub agar pembeli otomatis memuat setelan terbaru tanpa menyentuh <code class="font-mono">index.html</code>.
+                        </p>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" onclick="syncExternalConfig(true)" class="px-3 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+                            <span>Muat Ulang JSON</span>
+                        </button>
+                        <button type="button" onclick="downloadStoreConfigJson()" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5">
+                            <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                            <span>Unduh store-config.json</span>
+                        </button>
+                        <label class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer">
+                            <i data-lucide="upload" class="w-3.5 h-3.5"></i>
+                            <span>Impor JSON</span>
+                            <input type="file" id="import-config-file" accept=".json,application/json" onchange="importStoreConfigFile(event)" class="hidden">
+                        </label>
+                    </div>
+                </div>
+                <div class="text-xs text-slate-500 bg-slate-50 p-3.5 rounded-xl border border-slate-200/80 space-y-1">
+                    <p class="font-semibold text-slate-700">Alur Update di GitHub Tanpa Mengedit <code class="font-mono">index.html</code>:</p>
+                    <p>1. Atur nama toko, metode pembayaran, & katalog di Panel Admin lalu klik <strong>Unduh store-config.json</strong> (atau edit langsung <code class="font-mono">store-config.json</code> di repository GitHub).</p>
+                    <p>2. Unggah/commit <code class="font-mono">store-config.json</code> ke repository GitHub. Saat halaman dibuka, situs otomatis membaca <code class="font-mono">./store-config.json</code> jika tersedia.</p>
+                </div>
+            </div>
+        </div>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-slate-500">
+            <div class="flex items-center gap-2">
+                <div class="w-6 h-6 rounded-lg bg-brand-600 flex items-center justify-center text-white">
+                    <i data-lucide="layers" class="w-3.5 h-3.5"></i>
+                </div>
+                <span id="footer-store-name" class="font-bold text-slate-800">KatalogApp</span>
+                <span>© 2026 Hak Cipta Dilindungi.</span>
+                <span class="hidden sm:inline text-slate-300">•</span>
+                <span class="hidden sm:inline text-xs text-slate-400">Siap GitHub Pages</span>
+            </div>
+            <div class="flex items-center gap-4 sm:gap-6">
+                <button onclick="openOrdersModal()" class="hover:text-brand-600 transition-colors">Lisensi & Unduhan Saya</button>
+                <span class="text-slate-300">|</span>
+                <span>Gunakan kode <strong class="text-brand-600">HEMAT20</strong> untuk diskon 20%</span>
+                <span class="text-slate-300">|</span>
+                <button onclick="openAdminAuthModal()" class="text-xs text-slate-400 hover:text-slate-700 transition-colors flex items-center gap-1">
+                    <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+                    <span>Akses Admin</span>
+                </button>
+            </div>
+        </div>
+    </footer>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL LOGIN KATA SANDI ADMIN                                          -->
+    <!-- ===================================================================== -->
+    <div id="admin-auth-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-sm w-full shadow-2xl border border-slate-200 overflow-hidden">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shield-lock" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-base text-slate-900">Verifikasi Mode Admin</h3>
+                </div>
+                <button onclick="closeModal('admin-auth-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+            <form onsubmit="verifyAdminPassword(event)" class="p-6 space-y-4">
+                <p class="text-xs text-slate-500 leading-relaxed">
+                    Area ini khusus pengelola toko untuk mengubah katalog, harga, pengaturan toko, dan paket unduhan aplikasi.
+                </p>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Masukkan Kata Sandi Admin</label>
+                    <input type="password" id="admin-password-input" required placeholder="Masukkan kata sandi..." class="w-full px-3.5 py-2.5 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    <p class="text-[11px] text-slate-400 mt-1.5">Petunjuk pengujian default: <code class="font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded">admin123</code></p>
+                </div>
+                <div class="flex justify-end gap-2 pt-2">
+                    <button type="button" onclick="closeModal('admin-auth-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-sm">Masuk Mode Admin</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 1: DETAIL APLIKASI                                              -->
+    <!-- ===================================================================== -->
+    <div id="detail-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-auto animate-fade-in">
+            <!-- Header Modal -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50/50">
+                <div class="flex items-center gap-2">
+                    <span id="detail-category-badge" class="px-2.5 py-1 bg-brand-50 text-brand-700 text-xs font-semibold rounded-lg">Kategori</span>
+                    <span id="detail-version-badge" class="px-2.5 py-1 bg-slate-100 text-slate-600 text-xs font-mono font-semibold rounded-lg">v1.0</span>
+                </div>
+                <button onclick="closeModal('detail-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Body Modal -->
+            <div class="p-6 max-h-[75vh] overflow-y-auto space-y-6">
+                <!-- Info Utama -->
+                <div class="flex flex-col sm:flex-row gap-5 items-start">
+                    <div id="detail-icon-box" class="w-20 h-20 rounded-2xl flex items-center justify-center text-white shrink-0 shadow-md">
+                        <!-- Icon -->
+                    </div>
+                    <div class="flex-1">
+                        <h2 id="detail-title" class="text-2xl font-extrabold text-slate-900">Nama Aplikasi</h2>
+                        <div class="flex flex-wrap items-center gap-3 mt-2 text-sm">
+                            <div class="flex items-center gap-1 text-amber-500 font-bold">
+                                <i data-lucide="star" class="w-4 h-4 fill-amber-400"></i>
+                                <span id="detail-rating">4.9</span>
+                                <span class="text-slate-400 font-normal" id="detail-reviews">(120 ulasan)</span>
+                            </div>
+                            <span class="text-slate-300">•</span>
+                            <div id="detail-platforms" class="flex flex-wrap gap-1.5">
+                                <!-- Badges Platform -->
+                            </div>
+                        </div>
+                        <p id="detail-desc" class="text-slate-600 text-sm mt-3 leading-relaxed">Deskripsi lengkap aplikasi.</p>
+                    </div>
+                </div>
+
+                <!-- Ringkasan Teknis & Arsitektur Aplikasi -->
+                <div class="rounded-xl border border-slate-200 bg-slate-900 p-4 text-white overflow-hidden">
+                    <div class="flex items-center justify-between mb-3 pb-2 border-b border-slate-800">
+                        <div class="flex items-center gap-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+                            <span class="text-[11px] text-slate-400 ml-2 font-mono" id="detail-preview-url">package://katalogapp.id/app</span>
+                        </div>
+                        <span class="text-[10px] uppercase tracking-wider px-2 py-0.5 bg-brand-600/30 text-brand-300 rounded border border-brand-500/30">Ringkasan Paket Aplikasi</span>
+                    </div>
+                    <div id="detail-mockup-screen" class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                        <!-- Ringkasan arsitektur, distribusi, & lisensi aplikasi -->
+                    </div>
+                </div>
+
+                <!-- Fitur & Spesifikasi -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-2">
+                            <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-500"></i>
+                            Fitur Unggulan Aplikasi
+                        </h4>
+                        <ul id="detail-features" class="space-y-2 text-sm text-slate-600">
+                            <!-- List fitur -->
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                        <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                            <i data-lucide="file-code-2" class="w-4 h-4 text-brand-600"></i>
+                            Spesifikasi & Lisensi
+                        </h4>
+                        <div class="text-xs space-y-2 text-slate-600">
+                            <div class="flex justify-between py-1 border-b border-slate-200/60">
+                                <span class="text-slate-400">Tipe Lisensi</span>
+                                <span class="font-semibold text-slate-800">Lifetime (Sekali Bayar)</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200/60">
+                                <span class="text-slate-400">Ukuran Paket</span>
+                                <span class="font-semibold text-slate-800" id="detail-size">24.5 MB (Paket Lengkap)</span>
+                            </div>
+                            <div class="flex justify-between py-1 border-b border-slate-200/60">
+                                <span class="text-slate-400">Dukungan Update</span>
+                                <span class="font-semibold text-emerald-600">Gratis Selamanya</span>
+                            </div>
+                            <div class="pt-1">
+                                <span class="text-slate-400 block mb-1">Changelog Terbaru:</span>
+                                <p id="detail-changelog" class="text-slate-700 bg-white p-2 rounded-lg border border-slate-200 font-mono text-[11px]">Optimalisasi performa & perbaikan bug minor.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Review & Ulasan Pengguna Aplikasi -->
+                <div class="border-t border-slate-200 pt-5 space-y-4">
+                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                        <div>
+                            <h4 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                                <i data-lucide="message-square-quote" class="w-4 h-4 text-brand-600"></i>
+                                Review & Ulasan Pengguna Aplikasi
+                            </h4>
+                            <p class="text-xs text-slate-500 mt-0.5">Pengalaman pengguna terkait performa, stabilitas, dan kemudahan instalasi aplikasi.</p>
+                        </div>
+                        <div id="detail-review-summary" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-50 border border-amber-200/80 text-xs font-bold text-amber-700 self-start sm:self-auto">
+                            <!-- Ringkasan rating aplikasi -->
+                        </div>
+                    </div>
+
+                    <div id="detail-reviews-list" class="space-y-3">
+                        <!-- Daftar ulasan pengguna khusus aplikasi -->
+                    </div>
+
+                    <!-- Form Tambah Review Pengguna -->
+                    <form id="detail-review-form" onsubmit="submitAppReview(event)" class="bg-slate-50 p-4 rounded-xl border border-slate-200/80 space-y-3">
+                        <input type="hidden" id="review-product-id">
+                        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                            <span class="text-xs font-bold text-slate-800">Tulis Ulasan Aplikasi Ini</span>
+                            <div class="flex items-center gap-2">
+                                <label for="review-rating-select" class="text-xs text-slate-500">Penilaian:</label>
+                                <select id="review-rating-select" class="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 outline-none focus:border-brand-500">
+                                    <option value="5">★★★★★ (5.0 - Sangat Baik)</option>
+                                    <option value="4">★★★★☆ (4.0 - Baik)</option>
+                                    <option value="3">★★★☆☆ (3.0 - Cukup)</option>
+                                    <option value="2">★★☆☆☆ (2.0 - Kurang)</option>
+                                    <option value="1">★☆☆☆☆ (1.0 - Buruk)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+                            <input type="text" id="review-author-input" required placeholder="Nama Anda (Contoh: Andi Pratama)" class="px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                            <input type="text" id="review-role-input" placeholder="Peran / Perangkat (Misal: Android 14 / Admin)" class="sm:col-span-2 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                        </div>
+                        <div class="flex flex-col sm:flex-row gap-2.5">
+                            <input type="text" id="review-comment-input" required placeholder="Bagikan ulasan Anda mengenai fitur, kecepatan, atau kestabilan aplikasi..." class="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs focus:border-brand-500 outline-none">
+                            <button type="submit" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl transition-colors shrink-0">
+                                Kirim Ulasan
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <span class="text-xs text-slate-500 block">Harga Lisensi</span>
+                    <span id="detail-price" class="text-2xl font-extrabold text-brand-600">Rp 0</span>
+                </div>
+                <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                    <button id="detail-share-btn" class="px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-brand-400 hover:text-brand-600 font-semibold text-sm transition-colors flex items-center justify-center gap-1.5" title="Bagikan ke Media Sosial">
+                        <i data-lucide="share-2" class="w-4 h-4"></i>
+                        <span class="hidden sm:inline">Bagikan</span>
+                    </button>
+                    <button id="detail-add-cart-btn" class="flex-1 sm:flex-initial px-4 py-2.5 rounded-xl border border-brand-600 text-brand-600 hover:bg-brand-50 font-semibold text-sm transition-colors flex items-center justify-center gap-2">
+                        <i data-lucide="shopping-cart" class="w-4 h-4"></i>
+                        <span>+ Keranjang</span>
+                    </button>
+                    <button id="detail-buy-now-btn" class="flex-1 sm:flex-initial px-6 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-700 text-white font-semibold text-sm shadow-md shadow-brand-600/20 transition-all flex items-center justify-center gap-2">
+                        <i data-lucide="zap" class="w-4 h-4"></i>
+                        <span>Beli Sekarang</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- DRAWER 2: KERANJANG BELANJA & CHECKOUT                                -->
+    <!-- ===================================================================== -->
+    <div id="cart-drawer" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl flex flex-col justify-between animate-slide-left">
+            <!-- Header Drawer -->
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-lg text-slate-900">Keranjang & Checkout</h3>
+                </div>
+                <button onclick="toggleCartDrawer(false)" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Konten Drawer (Scrollable) -->
+            <div class="flex-1 overflow-y-auto p-6 space-y-6">
+                <!-- Daftar Item Keranjang -->
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Item Dipilih</h4>
+                    <div id="cart-items-container" class="space-y-3">
+                        <!-- Item keranjang di-render via JS -->
+                    </div>
+                </div>
+
+                <!-- Form Checkout (Hanya tampil jika keranjang tidak kosong) -->
+                <div id="checkout-form-section" class="space-y-5 border-t border-slate-200 pt-5">
+                    <!-- Kode Promo -->
+                    <div>
+                        <label class="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Kode Promo / Diskon</label>
+                        <div class="flex gap-2">
+                            <input type="text" id="promo-input" placeholder="Coba: HEMAT20" class="flex-1 px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm uppercase font-mono focus:border-brand-500 focus:bg-white outline-none">
+                            <button type="button" onclick="applyPromo()" class="px-4 py-2 bg-slate-800 hover:bg-slate-900 text-white text-xs font-bold rounded-xl transition-colors">Terapkan</button>
+                        </div>
+                        <p id="promo-message" class="text-xs mt-1.5 hidden"></p>
+                    </div>
+
+                    <!-- Data Pembeli -->
+                    <div class="space-y-3">
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500">Data Pengiriman Lisensi</h4>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Nama Lengkap *</label>
+                            <input type="text" id="buyer-name" placeholder="Contoh: Budi Santoso" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-brand-500 focus:bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Email Aktif (Untuk File & Invoice) *</label>
+                            <input type="email" id="buyer-email" placeholder="budi@email.com" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-brand-500 focus:bg-white outline-none">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-slate-700 mb-1">Nomor WhatsApp *</label>
+                            <input type="tel" id="buyer-wa" placeholder="081234567890" class="w-full px-3.5 py-2 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:border-brand-500 focus:bg-white outline-none">
+                        </div>
+                    </div>
+
+                    <!-- Metode Pembayaran -->
+                    <div>
+                        <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">Metode Pembayaran Instan</h4>
+                        <div class="grid grid-cols-1 gap-2" id="payment-methods">
+                            <!-- Di-render dinamis dari pengaturan toko -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Ringkasan Biaya & Tombol Bayar -->
+            <div id="cart-footer" class="p-6 bg-slate-50 border-t border-slate-200 space-y-3">
+                <div class="space-y-1.5 text-sm">
+                    <div class="flex justify-between text-slate-500">
+                        <span>Subtotal</span>
+                        <span id="cart-subtotal" class="font-medium text-slate-800">Rp 0</span>
+                    </div>
+                    <div id="cart-discount-row" class="hidden flex justify-between text-emerald-600">
+                        <span>Diskon Promo (<span id="applied-promo-code">HEMAT20</span>)</span>
+                        <span id="cart-discount-amount" class="font-semibold">- Rp 0</span>
+                    </div>
+                    <div class="flex justify-between text-base font-extrabold text-slate-900 pt-2 border-t border-slate-200">
+                        <span>Total Bayar</span>
+                        <span id="cart-total" class="text-brand-600">Rp 0</span>
+                    </div>
+                </div>
+                <button onclick="processCheckout()" id="checkout-submit-btn" class="w-full py-3 px-4 bg-brand-600 hover:bg-brand-700 text-white font-bold rounded-xl shadow-lg shadow-brand-600/25 transition-all flex items-center justify-center gap-2">
+                    <i data-lucide="lock" class="w-4 h-4"></i>
+                    <span>Bayar & Dapatkan Lisensi</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 3: PESANAN BERHASIL & UNDUH LISENSI                             -->
+    <!-- ===================================================================== -->
+    <div id="success-modal" class="fixed inset-0 z-50 hidden bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-xl w-full shadow-2xl border border-slate-200 overflow-hidden my-auto">
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white text-center">
+                <div class="w-14 h-14 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i data-lucide="check-circle" class="w-8 h-8 text-white"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold">Pembayaran Berhasil!</h2>
+                <p class="text-emerald-100 text-sm mt-1">Lisensi Anda telah aktif dan salinan invoice dikirim ke email.</p>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[65vh] overflow-y-auto">
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 flex flex-wrap justify-between gap-2 text-xs">
+                    <div>
+                        <span class="text-slate-400 block">ID Transaksi</span>
+                        <span id="success-order-id" class="font-mono font-bold text-slate-800">#INV-2026001</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Pembeli</span>
+                        <span id="success-buyer-info" class="font-semibold text-slate-800">Budi (budi@mail.com)</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 block">Total Lunas</span>
+                        <span id="success-total-paid" class="font-bold text-emerald-600">Rp 0</span>
+                    </div>
+                </div>
+
+                <div>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-500 mb-3">Paket Aplikasi & License Key Anda</h4>
+                    <div id="success-items-list" class="space-y-3">
+                        <!-- List lisensi item yang dibeli -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between gap-3">
+                <button onclick="closeModal('success-modal'); openOrdersModal();" class="text-sm font-semibold text-brand-600 hover:underline">
+                    Lihat di Lisensi Saya
+                </button>
+                <button onclick="closeModal('success-modal')" class="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white text-sm font-semibold rounded-xl transition-colors">
+                    Selesai & Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 4: RIWAYAT PEMBELIAN / LISENSI SAYA                             -->
+    <!-- ===================================================================== -->
+    <div id="orders-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-auto">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between gap-3 bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="key-round" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-lg text-slate-900">Riwayat Pembelian & Lisensi Saya</h3>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button type="button" id="clear-all-orders-btn" onclick="handleClearAllOrders()" class="hidden px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors flex items-center gap-1">
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                        <span id="clear-all-orders-label">Hapus Semua</span>
+                    </button>
+                    <button onclick="closeModal('orders-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div id="orders-list-container" class="p-6 max-h-[70vh] overflow-y-auto space-y-4">
+                <!-- Di-render via JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL 5: FORM ADMIN TAMBAH / EDIT APLIKASI                            -->
+    <!-- ===================================================================== -->
+    <div id="product-form-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto">
+            <div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+                <h3 id="product-form-title" class="font-bold text-lg text-slate-900">Tambah Aplikasi Baru</h3>
+                <button onclick="closeModal('product-form-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="admin-product-form" onsubmit="saveProductForm(event)" class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <input type="hidden" id="form-product-id">
+                
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Nama Aplikasi *</label>
+                    <input type="text" id="form-name" required placeholder="Contoh: KasirPintar POS Pro" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Kategori *</label>
+                        <select id="form-category" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none bg-white">
+                            <option value="Otomatis">Otomatis</option>
+                            <option value="Keuangan & Kasir">Keuangan & Kasir</option>
+                            <option value="Trading & Saham">Trading & Saham</option>
+                            <option value="Bisnis & Stok">Bisnis & Stok</option>
+                            <option value="Utilitas">Utilitas</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Versi Aplikasi *</label>
+                        <input type="text" id="form-version" required placeholder="v2.4" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Harga (Rp) *</label>
+                        <input type="number" id="form-price" required min="0" step="1000" placeholder="250000" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Status Ketersediaan</label>
+                        <select id="form-status" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none bg-white">
+                            <option value="Tersedia">Tersedia (Aktif)</option>
+                            <option value="Nonaktif">Nonaktif (Disembunyikan)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1.5">Platform Tersedia (Pilih minimal 1) *</label>
+                    <div class="flex flex-wrap gap-3 text-xs">
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                            <input type="checkbox" name="form-platforms" value="Web App" checked class="rounded text-brand-600"> Web App
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                            <input type="checkbox" name="form-platforms" value="Android APK" class="rounded text-brand-600"> Android APK
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer bg-slate-50 px-3 py-2 rounded-lg border border-slate-200">
+                            <input type="checkbox" name="form-platforms" value="Source Code" class="rounded text-brand-600"> Source Code
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label class="block text-xs font-semibold text-slate-700">Deskripsi Singkat & Lengkap *</label>
+                        <button type="button" onclick="applyAutoDescriptionAndFeatures(true)" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1">
+                            <i data-lucide="sparkles" class="w-3 h-3"></i>
+                            <span>Isi Otomatis Deskripsi & Fitur</span>
+                        </button>
+                    </div>
+                    <textarea id="form-desc" rows="3" required placeholder="Otomatis terisi berdasarkan nama, kategori, & platform aplikasi..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">Deskripsi otomatis menyesuaikan nama, kategori, dan platform aplikasi (tetap bisa diedit manual).</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-700 mb-1">Daftar Fitur (Pisahkan dengan koma) *</label>
+                    <input type="text" id="form-features" required placeholder="Otomatis terisi sesuai kategori & platform aplikasi..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">Nama File Unduhan *</label>
+                        <input type="text" id="form-download-filename" required placeholder="kasirpintar-pos-v3.2.json" class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm font-mono focus:border-brand-500 outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-700 mb-1">URL Eksternal (Opsional)</label>
+                        <input type="url" id="form-download-url" placeholder="https://..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-sm focus:border-brand-500 outline-none">
+                    </div>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-1">
+                        <label class="block text-xs font-semibold text-slate-700">Isi / Payload Paket Aplikasi (Untuk Unduhan Pembeli) *</label>
+                        <button type="button" onclick="applyAutoPayloadTemplate(true)" class="px-2.5 py-1 bg-brand-50 hover:bg-brand-100 text-brand-700 text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1">
+                            <i data-lucide="wand-2" class="w-3 h-3"></i>
+                            <span>Generate Otomatis</span>
+                        </button>
+                    </div>
+                    <textarea id="form-download-payload" rows="5" required placeholder="Masukkan konfigurasi, panduan aktivasi, atau bundle payload aplikasi..." class="w-full px-3.5 py-2 border border-slate-200 rounded-xl text-xs font-mono focus:border-brand-500 outline-none"></textarea>
+                    <p class="text-[11px] text-slate-400 mt-1">Otomatis terisi dari detail aplikasi saat membuat produk baru, atau klik <strong>Generate Otomatis</strong> kapan saja.</p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('product-form-modal')" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-semibold rounded-xl">Batal</button>
+                    <button type="submit" class="px-5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold rounded-xl shadow-sm">Simpan Aplikasi</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- MODAL BAGIKAN KE SEMUA MEDIA SOSIAL                                   -->
+    <!-- ===================================================================== -->
+    <div id="share-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-lg w-full shadow-2xl border border-slate-200 overflow-hidden my-auto">
+            <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="share-2" class="w-5 h-5 text-brand-600"></i>
+                    <h3 class="font-bold text-base text-slate-900">Bagikan Aplikasi ke Media Sosial</h3>
+                </div>
+                <button onclick="closeModal('share-modal')" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+                <!-- Info Singkat Target Share -->
+                <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+                    <div class="min-w-0">
+                        <span id="share-target-badge" class="text-[10px] font-bold uppercase tracking-wider text-brand-600 block">APLIKASI</span>
+                        <h4 id="share-target-title" class="text-sm font-extrabold text-slate-900 truncate">Nama Aplikasi</h4>
+                        <p id="share-target-subtitle" class="text-xs text-slate-500 truncate mt-0.5">Harga & Platform</p>
+                    </div>
+                    <span id="share-target-price" class="text-sm font-extrabold text-brand-600 shrink-0">Rp 0</span>
+                </div>
+
+                <!-- Teks Caption Siap Posting -->
+                <div>
+                    <div class="flex items-center justify-between gap-2 mb-1.5">
+                        <label for="share-caption-text" class="text-xs font-semibold text-slate-700">Teks Caption Siap Posting</label>
+                        <button type="button" onclick="copyShareCaption()" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-bold rounded-lg transition-colors flex items-center gap-1">
+                            <i data-lucide="copy" class="w-3 h-3"></i>
+                            <span>Salin Caption</span>
+                        </button>
+                    </div>
+                    <textarea id="share-caption-text" rows="4" oninput="handleShareCaptionChange()" class="w-full px-3.5 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 focus:border-brand-500 focus:bg-white outline-none leading-relaxed"></textarea>
+                </div>
+
+                <!-- Tautan / URL Halaman -->
+                <div>
+                    <label for="share-url-input" class="block text-xs font-semibold text-slate-700 mb-1.5">Tautan Dibagikan</label>
+                    <div class="flex gap-2">
+                        <input type="text" id="share-url-input" readonly class="flex-1 px-3.5 py-2 bg-slate-100 border border-slate-200 rounded-xl text-xs font-mono text-slate-600 outline-none">
+                        <button type="button" onclick="copyShareLink()" class="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 shrink-0">
+                            <i data-lucide="link" class="w-3.5 h-3.5"></i>
+                            <span>Salin Link</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Grid Semua Media Sosial -->
+                <div>
+                    <span class="block text-xs font-semibold text-slate-700 mb-2">Pilih Platform Media Sosial</span>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
+                        <button type="button" onclick="shareToSocial('whatsapp')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/60 hover:bg-emerald-100/80 text-emerald-800 text-xs font-bold transition-colors">
+                            <i data-lucide="message-circle" class="w-4 h-4 text-emerald-600 shrink-0"></i>
+                            <span>WhatsApp</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('telegram')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-sky-200 bg-sky-50/60 hover:bg-sky-100/80 text-sky-800 text-xs font-bold transition-colors">
+                            <i data-lucide="send" class="w-4 h-4 text-sky-600 shrink-0"></i>
+                            <span>Telegram</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('facebook')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-blue-200 bg-blue-50/60 hover:bg-blue-100/80 text-blue-800 text-xs font-bold transition-colors">
+                            <i data-lucide="facebook" class="w-4 h-4 text-blue-600 shrink-0"></i>
+                            <span>Facebook</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('x')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-300 bg-slate-100/80 hover:bg-slate-200/80 text-slate-900 text-xs font-bold transition-colors">
+                            <i data-lucide="share" class="w-4 h-4 text-slate-800 shrink-0"></i>
+                            <span>X (Twitter)</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('linkedin')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-indigo-200 bg-indigo-50/60 hover:bg-indigo-100/80 text-indigo-800 text-xs font-bold transition-colors">
+                            <i data-lucide="briefcase" class="w-4 h-4 text-indigo-600 shrink-0"></i>
+                            <span>LinkedIn</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('instagram')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-pink-200 bg-pink-50/60 hover:bg-pink-100/80 text-pink-800 text-xs font-bold transition-colors">
+                            <i data-lucide="instagram" class="w-4 h-4 text-pink-600 shrink-0"></i>
+                            <span>Instagram</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('tiktok')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-800 text-xs font-bold transition-colors">
+                            <i data-lucide="video" class="w-4 h-4 text-slate-700 shrink-0"></i>
+                            <span>TikTok</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('threads')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-purple-200 bg-purple-50/60 hover:bg-purple-100/80 text-purple-800 text-xs font-bold transition-colors">
+                            <i data-lucide="at-sign" class="w-4 h-4 text-purple-600 shrink-0"></i>
+                            <span>Threads</span>
+                        </button>
+                        <button type="button" onclick="shareToSocial('native')" class="flex items-center gap-2.5 p-2.5 rounded-xl border border-brand-200 bg-brand-50/70 hover:bg-brand-100 text-brand-800 text-xs font-bold transition-colors">
+                            <i data-lucide="smartphone-share" class="w-4 h-4 text-brand-600 shrink-0"></i>
+                            <span>Bagikan Perangkat</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex justify-end">
+                <button type="button" onclick="closeModal('share-modal')" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===================================================================== -->
+    <!-- JAVASCRIPT LOGIC                                                      -->
+    <!-- ===================================================================== -->
+    <script>
+        // 1. DATA AWAL KATALOG PRODUK & PENGATURAN TOKO
+        const DEFAULT_PAYMENT_METHODS = [
+            {
+                id: 'pay-qris',
+                label: 'QRIS Instan',
+                description: 'Otomatis terverifikasi dalam 1 detik',
+                badge: 'POPULER',
+                icon: 'qr-code',
+                enabled: true
+            },
+            {
+                id: 'pay-va',
+                label: 'Transfer Bank (BCA / Mandiri)',
+                description: 'Virtual Account cek otomatis',
+                badge: '',
+                icon: 'landmark',
+                enabled: true
+            },
+            {
+                id: 'pay-ewallet',
+                label: 'GoPay / DANA',
+                description: 'Langsung terhubung ke aplikasi',
+                badge: '',
+                icon: 'smartphone',
+                enabled: true
+            }
+        ];
+
+        const DEFAULT_STORE_SETTINGS = {
+            storeName: 'KatalogApp',
+            tagline: 'Digital Software & Source Code',
+            adminPassword: 'admin123',
+            paymentMethods: DEFAULT_PAYMENT_METHODS
+        };
+
+        const DEFAULT_PRODUCTS = [
+            {
+                id: 'app-1',
+                name: 'KasirPintar POS Pro',
+                category: 'Keuangan & Kasir',
+                platforms: ['Web App', 'Android APK'],
+                version: 'v3.2',
+                rating: 4.9,
+                reviews: 184,
+                price: 299000,
+                status: 'Tersedia',
+                icon: 'store',
+                color: 'from-blue-600 to-indigo-600',
+                size: '38.4 MB',
+                downloadFilename: 'KasirPintar_POS_Pro_v3.2_Paket.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'KasirPintar POS Pro',
+                    version: 'v3.2',
+                    releaseChannel: 'stable-lifetime',
+                    printerSupport: ['ESC/POS 58mm', 'ESC/POS 80mm', 'Bluetooth WebSerial'],
+                    setupSteps: [
+                        'Simpan file paket ini sebagai arsip lisensi instalasi.',
+                        'Gunakan License Key yang tertera pada invoice saat aktivasi pertama.',
+                        'Atur pajak toko & format struk di menu Pengaturan > Struk.'
+                    ]
+                }, null, 2),
+                desc: 'Sistem Point of Sale (POS) modern untuk cafe, retail, dan minimarket. Mendukung cetak struk thermal Bluetooth, manajemen meja, QRIS dinamis, dan sinkronisasi cloud real-time.',
+                features: [
+                    'Cetak struk thermal 58mm & 80mm via Bluetooth/USB',
+                    'Manajemen stok bahan baku & resep otomatis',
+                    'Laporan penjualan harian, shift kasir, & laba bersih',
+                    'Mode offline otomatis tersinkronisasi saat online'
+                ],
+                changelog: 'v3.2 - Penambahan fitur split bill & integrasi QRIS statis/dinamis.'
+            },
+            {
+                id: 'app-2',
+                name: 'CatatUang Harian APK + Web',
+                category: 'Keuangan & Kasir',
+                platforms: ['Android APK', 'Web App', 'Source Code'],
+                version: 'v2.4',
+                rating: 4.8,
+                reviews: 142,
+                price: 149000,
+                status: 'Tersedia',
+                icon: 'wallet',
+                color: 'from-emerald-500 to-teal-600',
+                size: '18.2 MB',
+                downloadFilename: 'CatatUang_Harian_v2.4_Bundle.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'CatatUang Harian APK + Web',
+                    version: 'v2.4',
+                    modules: ['Multi-Dompet', 'Rekap Harian', 'Ekspor Excel/PDF'],
+                    setupSteps: [
+                        'Buka aplikasi web atau installer APK pada perangkat Anda.',
+                        'Masukkan License Key untuk membuka fitur ekspor laporan penuh.',
+                        'Buat kategori kas sesuai kebutuhan usaha atau anggaran pribadi.'
+                    ]
+                }, null, 2),
+                desc: 'Aplikasi pencatat arus kas pribadi dan pembukuan usaha mikro yang ringan, cepat, dan mudah digunakan. Dilengkapi grafik pengeluaran bulanan dan ekspor laporan ke Excel/PDF.',
+                features: [
+                    'Pencatatan pemasukan & pengeluaran dalam 3 detik',
+                    'Multi-dompet (Tunai, Rekening Bank, E-Wallet)',
+                    'Pengingat tagihan & target tabungan otomatis',
+                    'Ekspor laporan rapi ke format Excel (.xlsx) & PDF'
+                ],
+                changelog: 'v2.4 - Pembaruan grafik analitik arus kas & mode gelap otomatis.'
+            },
+            {
+                id: 'app-3',
+                name: 'Screener Saham & XAUUSD Auto',
+                category: 'Trading & Saham',
+                platforms: ['Web App', 'Source Code'],
+                version: 'v4.0',
+                rating: 4.9,
+                reviews: 96,
+                price: 450000,
+                status: 'Tersedia',
+                icon: 'candlestick-chart',
+                color: 'from-amber-500 to-orange-600',
+                size: '42.0 MB',
+                downloadFilename: 'Screener_Saham_XAUUSD_v4.0_Config.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'Screener Saham & XAUUSD Auto',
+                    version: 'v4.0',
+                    indicators: ['RSI (14)', 'MACD (12,26,9)', 'Supply & Demand Zone'],
+                    riskTemplate: { defaultRiskPercent: 1.5, minRiskReward: '1:2' },
+                    setupSteps: [
+                        'Aktifkan lisensi menggunakan License Key pada dashboard screener.',
+                        'Pilih pair/emiten target serta timeframe analisis (M15, H1, H4).',
+                        'Sesuaikan batas risiko per transaksi sebelum mengaktifkan alert.'
+                    ]
+                }, null, 2),
+                desc: 'Alat bantu analisis teknikal real-time untuk menyaring saham potensial (IDX) dan memantau momentum pergerakan XAUUSD (Emas) menggunakan indikator RSI, MACD, dan Smart Money Concept.',
+                features: [
+                    'Auto-screening saham breakout volume tinggi & akumulasi bandar',
+                    'Detektor area Supply & Demand XAUUSD multi-timeframe',
+                    'Kalkulator manajemen risiko (Lot Size & Risk/Reward)',
+                    'Webhook alert siap hubung ke TradingView'
+                ],
+                changelog: 'v4.0 - Algoritma deteksi divergensi RSI & optimasi kecepatan data.'
+            },
+            {
+                id: 'app-4',
+                name: 'Generator Nota Retur & Stok',
+                category: 'Bisnis & Stok',
+                platforms: ['Web App', 'Android APK'],
+                version: 'v1.8',
+                rating: 4.7,
+                reviews: 78,
+                price: 175000,
+                status: 'Tersedia',
+                icon: 'clipboard-list',
+                color: 'from-purple-600 to-indigo-700',
+                size: '21.5 MB',
+                downloadFilename: 'Generator_Nota_Retur_Stok_v1.8.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'Generator Nota Retur & Stok',
+                    version: 'v1.8',
+                    documents: ['Surat Jalan', 'Nota Retur', 'Kartu Stok Gudang'],
+                    setupSteps: [
+                        'Masukkan License Key untuk mengaktifkan cetak dokumen tanpa watermark.',
+                        'Isi profil gudang/toko serta batas stok minimum barang.',
+                        'Gunakan fitur barcode scanner untuk mempercepat pencatatan.'
+                    ]
+                }, null, 2),
+                desc: 'Solusi praktis bagi distributor, grosir, dan toko online untuk membuat surat jalan, nota retur barang rusak/tukar, serta kartu stok gudang dengan barcode scanner kamera HP.',
+                features: [
+                    'Scan barcode barang langsung dari kamera smartphone',
+                    'Cetak dokumen Surat Jalan & Nota Retur berlogo toko',
+                    'Pelacakan riwayat barang masuk, keluar, dan opname',
+                    'Peringatan otomatis saat stok mencapai batas minimum'
+                ],
+                changelog: 'v1.8 - Dukungan scan batch barcode & tanda tangan digital di layar.'
+            },
+            {
+                id: 'app-5',
+                name: 'Dashboard Keuangan UMKM',
+                category: 'Bisnis & Stok',
+                platforms: ['Web App', 'Source Code'],
+                version: 'v2.1',
+                rating: 4.8,
+                reviews: 115,
+                price: 249000,
+                status: 'Tersedia',
+                icon: 'pie-chart',
+                color: 'from-cyan-600 to-blue-700',
+                size: '31.0 MB',
+                downloadFilename: 'Dashboard_Keuangan_UMKM_v2.1.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'Dashboard Keuangan UMKM',
+                    version: 'v2.1',
+                    reports: ['Laba Rugi', 'Neraca Sederhana', 'Arus Kas', 'PPh Final 0.5%'],
+                    setupSteps: [
+                        'Aktifkan lisensi pada halaman pengaturan pembukuan UMKM.',
+                        'Input saldo awal kas, piutang, dan hutang usaha.',
+                        'Catat transaksi harian agar laporan otomatis tersusun.'
+                    ]
+                }, null, 2),
+                desc: 'Aplikasi web akuntansi sederhana tanpa perlu latar belakang akuntan. Otomatis menyusun Laporan Laba Rugi, Neraca, Arus Kas, hingga perhitungan pajak UMKM (PPh Final 0,5%).',
+                features: [
+                    'Jurnal otomatis dari setiap transaksi penjualan & biaya',
+                    'Kalkulasi otomatis pajak UMKM 0,5% dari omzet bruto',
+                    'Manajemen piutang pelanggan & hutang supplier',
+                    'Akses multi-user (Owner, Admin Keuangan, Auditor)'
+                ],
+                changelog: 'v2.1 - Penambahan modul manajemen piutang jatuh tempo & reminder.'
+            },
+            {
+                id: 'app-6',
+                name: 'Bot Notifikasi Trading Telegram',
+                category: 'Utilitas',
+                platforms: ['Source Code', 'Web App'],
+                version: 'v3.5',
+                rating: 4.9,
+                reviews: 163,
+                price: 325000,
+                status: 'Tersedia',
+                icon: 'bot',
+                color: 'from-rose-500 to-pink-600',
+                size: '14.8 MB',
+                downloadFilename: 'Bot_Trading_Telegram_v3.5_Template.json',
+                downloadUrl: '',
+                downloadPayload: JSON.stringify({
+                    product: 'Bot Notifikasi Trading Telegram',
+                    version: 'v3.5',
+                    envTemplate: {
+                        TELEGRAM_BOT_TOKEN: 'ISI_TOKEN_BOTFATHER_ANDA',
+                        TARGET_CHAT_ID: 'ISI_ID_GRUP_ATAU_CHANNEL',
+                        LICENSE_REQUIRED: true
+                    },
+                    setupSteps: [
+                        'Buat bot melalui @BotFather dan salin token ke konfigurasi.',
+                        'Masukkan License Key resmi Anda untuk mengaktifkan worker sinyal.',
+                        'Hubungkan webhook sinyal ke endpoint bot Anda.'
+                    ]
+                }, null, 2),
+                desc: 'Script bot otomatis berbasis Node.js & Python untuk meneruskan sinyal trading dari indikator/webhook langsung ke channel atau grup Telegram pribadi lengkap dengan gambar chart.',
+                features: [
+                    'Pengiriman sinyal instan (< 0.5 detik) ke Telegram',
+                    'Otomatis melampirkan screenshot chart saat sinyal muncul',
+                    'Format pesan kustom (Entry, Stop Loss, TP1, TP2, TP3)',
+                    'Panel kontrol web untuk kelola member VIP channel'
+                ],
+                changelog: 'v3.5 - Fitur auto-kick member expired & laporan rekap winrate mingguan.'
+            }
+        ];
+
+        const CATEGORIES = ['Semua', 'Otomatis', 'Keuangan & Kasir', 'Trading & Saham', 'Bisnis & Stok', 'Utilitas'];
+
+        // Penyimpanan aman agar tetap berjalan di GitHub Pages / browser ketat
+        const memoryStorageFallback = {};
+        function safeStorageGet(key) {
+            try {
+                return window.localStorage.getItem(key);
+            } catch (e) {
+                return Object.prototype.hasOwnProperty.call(memoryStorageFallback, key)
+                    ? memoryStorageFallback[key]
+                    : null;
+            }
+        }
+        function safeStorageSet(key, value) {
+            try {
+                window.localStorage.setItem(key, value);
+            } catch (e) {
+                memoryStorageFallback[key] = value;
+            }
+        }
+
+        // 2. STATE APLIKASI (Disimpan di localStorage dengan fallback aman)
+        const savedSettings = JSON.parse(safeStorageGet('katalogapp_settings') || '{}');
+        let storeSettings = {
+            ...DEFAULT_STORE_SETTINGS,
+            ...savedSettings,
+            paymentMethods: Array.isArray(savedSettings.paymentMethods) && savedSettings.paymentMethods.length > 0
+                ? savedSettings.paymentMethods
+                : JSON.parse(JSON.stringify(DEFAULT_PAYMENT_METHODS))
+        };
+        let products = JSON.parse(safeStorageGet('katalogapp_products') || 'null') || DEFAULT_PRODUCTS;
+        let cart = JSON.parse(safeStorageGet('katalogapp_cart') || '[]');
+        let orders = JSON.parse(safeStorageGet('katalogapp_orders') || '[]');
+        
+        let currentCategory = 'Semua';
+        let currentSearch = '';
+        let currentSort = 'featured';
+        let appliedPromo = null; // { code: 'HEMAT20', discountPercent: 20 }
+        let isAdminAuthenticated = false;
+        let isAdminMode = false;
+        let pendingDeleteOrderId = null;
+        let pendingClearAllOrders = false;
+
+        // Helper Format Rupiah
+        function formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID', {
+                style: 'currency',
+                currency: 'IDR',
+                minimumFractionDigits: 0
+            }).format(angka);
+        }
+
+        // Helper Simpan ke LocalStorage
+        function saveState() {
+            safeStorageSet('katalogapp_settings', JSON.stringify(storeSettings));
+            safeStorageSet('katalogapp_products', JSON.stringify(products));
+            safeStorageSet('katalogapp_cart', JSON.stringify(cart));
+            safeStorageSet('katalogapp_orders', JSON.stringify(orders));
+            applyStoreBranding();
+            renderCheckoutPaymentMethods();
+            updateBadges();
+        }
+
+        // Notifikasi Toast
+        function showToast(message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+
+            const styles = {
+                success: 'bg-slate-900 text-white border-emerald-500/40',
+                error: 'bg-rose-600 text-white border-rose-400/40',
+                info: 'bg-brand-700 text-white border-brand-400/40'
+            };
+
+            const icons = {
+                success: 'check-circle-2',
+                error: 'alert-circle',
+                info: 'info'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `pointer-events-auto flex items-center gap-2.5 px-4 py-3 rounded-xl border shadow-xl text-xs sm:text-sm font-medium transition-all ${styles[type] || styles.success}`;
+            toast.innerHTML = `
+                <i data-lucide="${icons[type] || 'check-circle-2'}" class="w-4 h-4 shrink-0"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(toast);
+            lucide.createIcons();
+
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 250);
+            }, 3000);
+        }
+
+        // Terapkan Nama Toko & Tagline ke UI serta Title Dokumen
+        function applyStoreBranding() {
+            const name = (storeSettings && storeSettings.storeName) ? storeSettings.storeName : 'KatalogApp';
+            const tagline = (storeSettings && storeSettings.tagline) ? storeSettings.tagline : 'Digital Software & Source Code';
+
+            document.title = `${name} - ${tagline}`;
+
+            const brandEl = document.getElementById('store-brand-name');
+            if (brandEl) {
+                if (name.toLowerCase() === 'katalogapp') {
+                    brandEl.innerHTML = 'Katalog<span class="text-brand-600">App</span>';
+                } else {
+                    brandEl.textContent = name;
+                }
+            }
+
+            const taglineEl = document.getElementById('store-brand-tagline');
+            if (taglineEl) {
+                taglineEl.textContent = tagline;
+            }
+
+            const footerNameEl = document.getElementById('footer-store-name');
+            if (footerNameEl) {
+                footerNameEl.textContent = name;
+            }
+        }
+
+        // Warna Badge Platform
+        function getPlatformBadgeClass(platform) {
+            switch (platform) {
+                case 'Web App':
+                    return 'bg-blue-50 text-blue-700 border-blue-200';
+                case 'Android APK':
+                    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+                case 'Source Code':
+                    return 'bg-purple-50 text-purple-700 border-purple-200';
+                default:
+                    return 'bg-slate-100 text-slate-700 border-slate-200';
+            }
+        }
+
+        // Render Tombol Filter Kategori
+        function renderCategories() {
+            const container = document.getElementById('category-filters');
+            if (!container) return;
+
+            container.innerHTML = CATEGORIES.map(cat => {
+                const isActive = currentCategory === cat;
+                return `
+                    <button onclick="selectCategory('${cat.replace(/'/g, "\\'")}')" class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all ${
+                        isActive
+                            ? 'bg-brand-600 text-white shadow-sm shadow-brand-600/20'
+                            : 'bg-white text-slate-600 border border-slate-200 hover:border-brand-300 hover:text-brand-600'
+                    }">
+                        ${cat}
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // Render Katalog Produk Publik
+        function renderProducts() {
+            const grid = document.getElementById('product-grid');
+            const emptyState = document.getElementById('empty-state');
+            const countInfo = document.getElementById('catalog-count-info');
+            if (!grid || !emptyState || !countInfo) return;
+
+            const query = currentSearch.trim().toLowerCase();
+
+            let filtered = products.filter(p => {
+                if (p.status !== 'Tersedia') return false;
+                if (currentCategory !== 'Semua' && p.category !== currentCategory) return false;
+                if (query) {
+                    const haystack = `${p.name} ${p.category} ${p.desc} ${p.platforms.join(' ')}`.toLowerCase();
+                    if (!haystack.includes(query)) return false;
+                }
+                return true;
+            });
+
+            if (currentSort === 'price-asc') {
+                filtered.sort((a, b) => a.price - b.price);
+            } else if (currentSort === 'price-desc') {
+                filtered.sort((a, b) => b.price - a.price);
+            } else if (currentSort === 'rating') {
+                filtered.sort((a, b) => b.rating - a.rating);
+            }
+
+            countInfo.textContent = `Menampilkan ${filtered.length} dari ${products.filter(p => p.status === 'Tersedia').length} aplikasi tersedia`;
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '';
+                emptyState.classList.remove('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            emptyState.classList.add('hidden');
+            grid.innerHTML = filtered.map(p => {
+                const inCart = cart.some(item => item.id === p.id);
+                return `
+                    <div class="bg-white rounded-2xl border border-slate-200 hover:border-brand-300 hover:shadow-lg transition-all flex flex-col justify-between overflow-hidden group">
+                        <div class="p-5 space-y-4">
+                            <div class="flex items-start justify-between gap-3">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br ${p.color || 'from-brand-600 to-blue-600'} flex items-center justify-center text-white shadow-sm shrink-0">
+                                    <i data-lucide="${p.icon || 'app-window'}" class="w-6 h-6"></i>
+                                </div>
+                                <div class="flex items-center gap-1 bg-amber-50 border border-amber-200/80 px-2.5 py-1 rounded-lg text-xs font-bold text-amber-600">
+                                    <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400"></i>
+                                    <span>${p.rating}</span>
+                                    <span class="text-slate-400 font-normal">(${p.reviews})</span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between gap-2 mb-1">
+                                    <span class="text-[11px] font-bold uppercase tracking-wider text-brand-600">${p.category}</span>
+                                    <span class="text-[11px] font-mono text-slate-400">${p.version}</span>
+                                </div>
+                                <h3 onclick="openDetailModal('${p.id}')" class="text-lg font-bold text-slate-900 group-hover:text-brand-600 transition-colors cursor-pointer line-clamp-1">${p.name}</h3>
+                                <p class="text-xs sm:text-sm text-slate-500 mt-1.5 line-clamp-2 leading-relaxed">${p.desc}</p>
+                            </div>
+
+                            <div class="flex flex-wrap gap-1.5">
+                                ${p.platforms.map(pl => `
+                                    <span class="px-2 py-0.5 text-[11px] font-semibold rounded-md border ${getPlatformBadgeClass(pl)}">${pl}</span>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <div class="px-5 py-4 bg-slate-50/80 border-t border-slate-100 flex items-center justify-between gap-3">
+                            <div>
+                                <span class="text-[11px] text-slate-400 block">Lisensi Lifetime</span>
+                                <span class="text-base font-extrabold text-slate-900">${formatRupiah(p.price)}</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 sm:gap-2">
+                                <button onclick="openShareModal('${p.id}')" class="p-2 rounded-xl border border-slate-200 bg-white hover:bg-brand-50 hover:border-brand-300 text-slate-600 hover:text-brand-600 transition-colors" title="Bagikan ke Media Sosial">
+                                    <i data-lucide="share-2" class="w-3.5 h-3.5"></i>
+                                </button>
+                                <button onclick="openDetailModal('${p.id}')" class="px-3 py-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 text-xs font-semibold transition-colors">
+                                    Detail
+                                </button>
+                                <button onclick="addToCart('${p.id}')" class="px-3.5 py-2 rounded-xl ${inCart ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-brand-600 hover:bg-brand-700'} text-white text-xs font-semibold transition-colors flex items-center gap-1.5 shadow-sm">
+                                    <i data-lucide="${inCart ? 'check' : 'shopping-cart'}" class="w-3.5 h-3.5"></i>
+                                    <span>${inCart ? 'Di Keranjang' : 'Beli'}</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderCheckoutPaymentMethods() {
+            const container = document.getElementById('payment-methods');
+            if (!container) return;
+
+            const activeMethods = (storeSettings.paymentMethods || []).filter(m => m.enabled);
+
+            if (activeMethods.length === 0) {
+                container.innerHTML = `
+                    <div class="p-3 rounded-xl border border-amber-200 bg-amber-50 text-xs text-amber-800">
+                        Belum ada metode pembayaran yang aktif. Silakan aktifkan di Panel Admin.
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = activeMethods.map((method, index) => {
+                const isFirst = index === 0;
+                const val = `${method.label} (${method.description})`;
+                return `
+                    <label class="flex items-center justify-between p-3 rounded-xl border ${isFirst ? 'border-brand-500 bg-brand-50/50' : 'border-slate-200 hover:border-slate-300'} cursor-pointer payment-option transition-colors">
+                        <div class="flex items-center gap-3">
+                            <input type="radio" name="payment" value="${val.replace(/"/g, '"')}" ${isFirst ? 'checked' : ''} class="text-brand-600 focus:ring-brand-500">
+                            <div>
+                                <span class="text-sm font-bold text-slate-800 block">${method.label}</span>
+                                <span class="text-[11px] text-slate-500">${method.description}</span>
+                            </div>
+                        </div>
+                        ${method.badge
+                            ? `<span class="px-2 py-0.5 bg-brand-600 text-white text-[10px] font-bold rounded">${method.badge}</span>`
+                            : `<i data-lucide="${method.icon || 'credit-card'}" class="w-4 h-4 text-slate-400"></i>`
+                        }
+                    </label>
+                `;
+            }).join('');
+
+            container.querySelectorAll('input[name="payment"]').forEach(radio => {
+                radio.addEventListener('change', () => {
+                    container.querySelectorAll('.payment-option').forEach(label => {
+                        label.classList.remove('border-brand-500', 'bg-brand-50/50');
+                        label.classList.add('border-slate-200');
+                    });
+                    const activeLabel = radio.closest('.payment-option');
+                    if (activeLabel) {
+                        activeLabel.classList.remove('border-slate-200');
+                        activeLabel.classList.add('border-brand-500', 'bg-brand-50/50');
+                    }
+                });
+            });
+
+            lucide.createIcons();
+        }
+
+        // Filter & Search Handlers
+        function selectCategory(category) {
+            currentCategory = category;
+            renderCategories();
+            renderProducts();
+        }
+
+        function handleSearch(val) {
+            currentSearch = val;
+            document.getElementById('search-input-desktop').value = val;
+            document.getElementById('search-input-mobile').value = val;
+            renderProducts();
+        }
+
+        function handleSort(val) {
+            currentSort = val;
+            renderProducts();
+        }
+
+        function resetFilters() {
+            currentCategory = 'Semua';
+            currentSearch = '';
+            currentSort = 'featured';
+            document.getElementById('search-input-desktop').value = '';
+            document.getElementById('search-input-mobile').value = '';
+            document.getElementById('sort-select').value = 'featured';
+            if (isAdminMode) toggleAdminMode();
+            renderCategories();
+            renderProducts();
+        }
+
+        // 4. MODAL DETAIL APLIKASI & REVIEW KHUSUS APLIKASI
+        function getDefaultAppReviews(product) {
+            if (Array.isArray(product.reviewList) && product.reviewList.length > 0) {
+                return product.reviewList;
+            }
+            const platformLabel = (product.platforms && product.platforms.length) ? product.platforms[0] : 'Web App';
+            return [
+                {
+                    author: 'Rizky Ramadhan',
+                    role: `Pengguna ${platformLabel} • Lisensi Terverifikasi`,
+                    rating: 5,
+                    date: '2 hari lalu',
+                    comment: `Instalasi ${product.name} (${product.version}) sangat mudah dan ringan dijalankan. Fitur utamanya responsif tanpa kendala.`
+                },
+                {
+                    author: 'Nadia Kusuma',
+                    role: `Operasional ${product.category}`,
+                    rating: 5,
+                    date: '1 minggu lalu',
+                    comment: `Antarmuka aplikasi bersih dan alur kerjanya jelas. Sangat membantu mempercepat pekerjaan harian tim kami.`
+                }
+            ];
+        }
+
+        function renderAppReviewsSection(product) {
+            const reviews = getDefaultAppReviews(product);
+            const summaryEl = document.getElementById('detail-review-summary');
+            const listEl = document.getElementById('detail-reviews-list');
+            const productIdInput = document.getElementById('review-product-id');
+
+            if (productIdInput) {
+                productIdInput.value = product.id;
+            }
+            if (summaryEl) {
+                summaryEl.innerHTML = `
+                    <i data-lucide="star" class="w-3.5 h-3.5 fill-amber-400 text-amber-500"></i>
+                    <span>${product.rating} / 5.0</span>
+                    <span class="text-amber-600/80 font-medium">(${product.reviews} ulasan aplikasi)</span>
+                `;
+            }
+            if (listEl) {
+                listEl.innerHTML = reviews.map(rev => {
+                    const stars = '★'.repeat(Math.max(1, Math.min(5, Number(rev.rating) || 5))) +
+                                  '☆'.repeat(Math.max(0, 5 - (Number(rev.rating) || 5)));
+                    return `
+                        <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 space-y-1.5">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div>
+                                    <span class="text-xs font-bold text-slate-900">${rev.author}</span>
+                                    ${rev.role ? `<span class="text-[11px] text-slate-400 ml-1.5">• ${rev.role}</span>` : ''}
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs text-amber-500 tracking-tight">${stars}</span>
+                                    <span class="text-[11px] text-slate-400">${rev.date || 'Baru saja'}</span>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-600 leading-relaxed">${rev.comment}</p>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        function submitAppReview(e) {
+            e.preventDefault();
+            const productId = document.getElementById('review-product-id').value;
+            const author = document.getElementById('review-author-input').value.trim();
+            const role = document.getElementById('review-role-input').value.trim();
+            const comment = document.getElementById('review-comment-input').value.trim();
+            const ratingVal = parseInt(document.getElementById('review-rating-select').value, 10) || 5;
+
+            if (!productId || !author || !comment) return;
+
+            const idx = products.findIndex(p => p.id === productId);
+            if (idx === -1) return;
+
+            const target = products[idx];
+            const currentList = getDefaultAppReviews(target);
+            const newReview = {
+                author,
+                role: role || `Pengguna ${target.platforms[0] || 'Aplikasi'}`,
+                rating: ratingVal,
+                date: 'Baru saja',
+                comment
+            };
+
+            const updatedList = [newReview, ...currentList];
+            const prevCount = Number(target.reviews) || currentList.length;
+            const prevRating = Number(target.rating) || 5.0;
+            const newCount = prevCount + 1;
+            const newAvg = Number((((prevRating * prevCount) + ratingVal) / newCount).toFixed(1));
+
+            products[idx] = {
+                ...target,
+                reviews: newCount,
+                rating: Math.min(5.0, Math.max(1.0, newAvg)),
+                reviewList: updatedList
+            };
+
+            saveState();
+            renderProducts();
+            document.getElementById('detail-rating').textContent = products[idx].rating;
+            document.getElementById('detail-reviews').textContent = `(${products[idx].reviews} ulasan terverifikasi)`;
+            renderAppReviewsSection(products[idx]);
+            document.getElementById('detail-review-form').reset();
+            document.getElementById('review-product-id').value = productId;
+            lucide.createIcons();
+            showToast('Ulasan aplikasi Anda berhasil ditambahkan!');
+        }
+
+        function openDetailModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            document.getElementById('detail-category-badge').textContent = product.category;
+            document.getElementById('detail-version-badge').textContent = product.version;
+            document.getElementById('detail-title').textContent = product.name;
+            document.getElementById('detail-rating').textContent = product.rating;
+            document.getElementById('detail-reviews').textContent = `(${product.reviews} ulasan terverifikasi)`;
+            document.getElementById('detail-desc').textContent = product.desc;
+            document.getElementById('detail-price').textContent = formatRupiah(product.price);
+            document.getElementById('detail-size').textContent = product.size || '25.0 MB (Paket Lengkap)';
+            document.getElementById('detail-changelog').textContent = product.changelog || `${product.version} - Peningkatan stabilitas sistem & pembaruan keamanan.`;
+            document.getElementById('detail-preview-url').textContent = `package://${(storeSettings.storeName || 'katalogapp').toLowerCase().replace(/\s+/g, '')}/${product.id}`;
+
+            const iconBox = document.getElementById('detail-icon-box');
+            iconBox.className = `w-20 h-20 rounded-2xl bg-gradient-to-br ${product.color || 'from-brand-600 to-blue-600'} flex items-center justify-center text-white shrink-0 shadow-md`;
+            iconBox.innerHTML = `<i data-lucide="${product.icon || 'app-window'}" class="w-10 h-10"></i>`;
+
+            document.getElementById('detail-platforms').innerHTML = product.platforms.map(pl => `
+                <span class="px-2.5 py-0.5 text-xs font-semibold rounded-md border ${getPlatformBadgeClass(pl)}">${pl}</span>
+            `).join('');
+
+            document.getElementById('detail-features').innerHTML = product.features.map(feat => `
+                <li class="flex items-start gap-2">
+                    <i data-lucide="check" class="w-4 h-4 text-emerald-500 shrink-0 mt-0.5"></i>
+                    <span>${feat}</span>
+                </li>
+            `).join('');
+
+            // Ringkasan Paket & Arsitektur Aplikasi (Fokus Teknis Aplikasi)
+            const mockup = document.getElementById('detail-mockup-screen');
+            const platformSummary = product.platforms.join(' • ');
+            const bundleName = product.downloadFilename || `${product.name.replace(/\s+/g, '_')}_${product.version}.json`;
+            mockup.innerHTML = `
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                    <span class="text-slate-400 block text-[10px]">Platform Didukung</span>
+                    <span class="text-emerald-400 font-bold text-xs sm:text-sm block mt-0.5">${platformSummary}</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Siap instal & langsung pakai</span>
+                </div>
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                    <span class="text-slate-400 block text-[10px]">Rilis & Ukuran Paket</span>
+                    <span class="text-blue-400 font-bold text-xs sm:text-sm block mt-0.5">${product.version} (${product.size || '25.0 MB'})</span>
+                    <span class="text-[10px] text-slate-400 font-mono truncate mt-1 block">${bundleName}</span>
+                </div>
+                <div class="bg-slate-800 p-3 rounded-lg border border-slate-700">
+                    <span class="text-slate-400 block text-[10px]">Aktivasi & Lisensi</span>
+                    <span class="text-amber-400 font-bold text-xs sm:text-sm block mt-0.5">License Key Instan</span>
+                    <span class="text-[10px] text-slate-400 mt-1 block">Aktif otomatis setelah lunas</span>
+                </div>
+            `;
+
+            renderAppReviewsSection(product);
+
+            // Tombol bagikan di modal detail
+            document.getElementById('detail-share-btn').onclick = () => {
+                openShareModal(product.id);
+            };
+
+            // Tombol aksi di modal detail
+            document.getElementById('detail-add-cart-btn').onclick = () => {
+                addToCart(product.id);
+                closeModal('detail-modal');
+            };
+            document.getElementById('detail-buy-now-btn').onclick = () => {
+                addToCart(product.id, true);
+                closeModal('detail-modal');
+                toggleCartDrawer(true);
+            };
+
+            openModal('detail-modal');
+            lucide.createIcons();
+        }
+
+        // 5. KERANJANG BELANJA & CHECKOUT
+        function addToCart(productId, silent = false) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const existing = cart.find(item => item.id === productId);
+            if (existing) {
+                if (!silent) showToast(`"${product.name}" sudah ada di keranjang`, 'info');
+            } else {
+                cart.push({
+                    id: product.id,
+                    name: product.name,
+                    price: product.price,
+                    version: product.version,
+                    platforms: product.platforms,
+                    qty: 1
+                });
+                saveState();
+                renderProducts();
+                renderCart();
+                if (!silent) showToast(`"${product.name}" ditambahkan ke keranjang!`);
+            }
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            saveState();
+            renderProducts();
+            renderCart();
+        }
+
+        function toggleCartDrawer(show) {
+            const drawer = document.getElementById('cart-drawer');
+            if (show) {
+                renderCart();
+                drawer.classList.remove('hidden');
+            } else {
+                drawer.classList.add('hidden');
+            }
+        }
+
+        function applyPromo() {
+            const input = document.getElementById('promo-input').value.trim().toUpperCase();
+            const msg = document.getElementById('promo-message');
+            
+            if (input === 'HEMAT20') {
+                appliedPromo = { code: 'HEMAT20', discountPercent: 20 };
+                msg.textContent = 'Kode promo HEMAT20 berhasil diterapkan (Diskon 20%)!';
+                msg.className = 'text-xs mt-1.5 text-emerald-600 font-semibold block';
+                showToast('Diskon 20% berhasil diterapkan!');
+            } else if (input === 'DISKON10') {
+                appliedPromo = { code: 'DISKON10', discountPercent: 10 };
+                msg.textContent = 'Kode promo DISKON10 berhasil diterapkan (Diskon 10%)!';
+                msg.className = 'text-xs mt-1.5 text-emerald-600 font-semibold block';
+                showToast('Diskon 10% berhasil diterapkan!');
+            } else {
+                appliedPromo = null;
+                msg.textContent = 'Kode promo tidak valid. Coba gunakan kode: HEMAT20';
+                msg.className = 'text-xs mt-1.5 text-rose-500 font-medium block';
+            }
+            renderCart();
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cart-items-container');
+            const formSection = document.getElementById('checkout-form-section');
+            const footer = document.getElementById('cart-footer');
+
+            if (cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 bg-slate-50 rounded-2xl border border-dashed border-slate-200">
+                        <i data-lucide="shopping-cart" class="w-10 h-10 text-slate-300 mx-auto mb-2"></i>
+                        <p class="text-sm font-semibold text-slate-600">Keranjang belanja masih kosong</p>
+                        <p class="text-xs text-slate-400 mt-1">Pilih aplikasi dari katalog untuk mulai membeli.</p>
+                    </div>
+                `;
+                formSection.classList.add('hidden');
+                footer.classList.add('hidden');
+                lucide.createIcons();
+                return;
+            }
+
+            formSection.classList.remove('hidden');
+            footer.classList.remove('hidden');
+
+            container.innerHTML = cart.map(item => `
+                <div class="flex items-center justify-between gap-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200/80">
+                    <div class="flex-1 min-w-0">
+                        <h5 class="text-sm font-bold text-slate-800 truncate">${item.name}</h5>
+                        <div class="flex items-center gap-2 mt-1">
+                            <span class="text-[11px] font-mono bg-white px-1.5 py-0.5 rounded border border-slate-200 text-slate-600">${item.version}</span>
+                            <span class="text-xs font-bold text-brand-600">${formatRupiah(item.price)}</span>
+                        </div>
+                    </div>
+                    <button onclick="removeFromCart('${item.id}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus item">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            `).join('');
+
+            // Hitung Total
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const discountAmount = appliedPromo ? Math.round(subtotal * (appliedPromo.discountPercent / 100)) : 0;
+            const totalPaid = Math.max(0, subtotal - discountAmount);
+
+            document.getElementById('cart-subtotal').textContent = formatRupiah(subtotal);
+
+            const discountRow = document.getElementById('cart-discount-row');
+            if (appliedPromo && discountAmount > 0) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('applied-promo-code').textContent = appliedPromo.code;
+                document.getElementById('cart-discount-amount').textContent = `- ${formatRupiah(discountAmount)}`;
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
+            document.getElementById('cart-total').textContent = formatRupiah(totalPaid);
+
+            lucide.createIcons();
+        }
+
+        // Generator License Key Unik Per Item
+        function generateLicenseKey(productId = 'APP') {
+            const prefix = String(productId || 'APP')
+                .replace(/[^a-zA-Z0-9]/g, '')
+                .toUpperCase()
+                .slice(0, 4)
+                .padEnd(4, 'K');
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            const randomSegment = (length) => {
+                let out = '';
+                for (let i = 0; i < length; i++) {
+                    out += chars[Math.floor(Math.random() * chars.length)];
+                }
+                return out;
+            };
+            return `KTLG-${prefix}-${randomSegment(4)}-${randomSegment(4)}`;
+        }
+
+        // Proses Checkout & Pembayaran Simulasi
+        function processCheckout() {
+            if (cart.length === 0) {
+                showToast('Keranjang belanja masih kosong!', 'error');
+                return;
+            }
+
+            const name = document.getElementById('buyer-name').value.trim();
+            const email = document.getElementById('buyer-email').value.trim();
+            const wa = document.getElementById('buyer-wa').value.trim();
+            const paymentMethod = document.querySelector('input[name="payment"]:checked')?.value || 'QRIS Instan';
+
+            if (!name || !email || !wa) {
+                showToast('Mohon lengkapi Nama, Email, dan Nomor WhatsApp!', 'error');
+                return;
+            }
+
+            const subtotal = cart.reduce((sum, item) => sum + item.price, 0);
+            const discountAmount = appliedPromo ? Math.round(subtotal * (appliedPromo.discountPercent / 100)) : 0;
+            const totalPaid = Math.max(0, subtotal - discountAmount);
+            const orderId = `INV-${Date.now().toString().slice(-7)}`;
+            const orderDate = new Date().toLocaleString('id-ID', {
+                day: '2-digit',
+                month: 'short',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            // Buat item lisensi beserta payload unduhan yang hanya dibuka setelah pembayaran lunas
+            const purchasedItems = cart.map(item => {
+                const latestProduct = products.find(p => p.id === item.id) || {};
+                return {
+                    ...item,
+                    paid: true,
+                    licenseKey: generateLicenseKey(item.id),
+                    downloadFilename: latestProduct.downloadFilename || `${item.name.replace(/\s+/g, '_')}_${item.version}_Paket.json`,
+                    downloadUrl: latestProduct.downloadUrl || '',
+                    downloadPayload: latestProduct.downloadPayload || ''
+                };
+            });
+
+            const newOrder = {
+                orderId,
+                date: orderDate,
+                buyerName: name,
+                buyerEmail: email,
+                buyerWa: wa,
+                paymentMethod,
+                status: 'LUNAS',
+                totalPaid,
+                items: purchasedItems
+            };
+
+            orders.unshift(newOrder);
+            cart = [];
+            appliedPromo = null;
+            document.getElementById('promo-input').value = '';
+            document.getElementById('promo-message').classList.add('hidden');
+            
+            saveState();
+            renderProducts();
+            renderCart();
+            toggleCartDrawer(false);
+
+            // Tampilkan Modal Sukses & Lisensi
+            showSuccessModal(newOrder);
+            showToast(`Pembayaran #${orderId} berhasil! File siap diunduh.`);
+        }
+
+        function copyText(text) {
+            try {
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(text).catch(() => {});
+                }
+                const tempInput = document.createElement('textarea');
+                tempInput.value = text;
+                tempInput.setAttribute('readonly', '');
+                tempInput.style.position = 'absolute';
+                tempInput.style.left = '-9999px';
+                document.body.appendChild(tempInput);
+                tempInput.select();
+                document.execCommand('copy');
+                document.body.removeChild(tempInput);
+                showToast('License Key berhasil disalin!');
+            } catch (err) {
+                showToast('Gagal menyalin otomatis, silakan salin manual.', 'error');
+            }
+        }
+
+        function showSuccessModal(order) {
+            document.getElementById('success-order-id').textContent = `#${order.orderId}`;
+            document.getElementById('success-buyer-info').textContent = `${order.buyerName} (${order.buyerEmail})`;
+            document.getElementById('success-total-paid').textContent = formatRupiah(order.totalPaid);
+
+            const list = document.getElementById('success-items-list');
+            list.innerHTML = order.items.map(item => `
+                <div class="p-4 rounded-xl border border-slate-200 bg-slate-50/70 space-y-2.5">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-slate-900 text-sm">${item.name} <span class="text-xs font-mono text-slate-500">(${item.version})</span></span>
+                        <span class="px-2 py-0.5 bg-emerald-100 text-emerald-700 text-[10px] font-bold rounded">PEMBAYARAN TERKONFIRMASI</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 bg-white p-2.5 rounded-lg border border-slate-200">
+                        <code class="text-xs font-mono font-bold text-brand-700 select-all">${item.licenseKey}</code>
+                        <button onclick="copyText('${item.licenseKey}')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-md flex items-center gap-1 transition-colors">
+                            <i data-lucide="copy" class="w-3 h-3"></i> Salin
+                        </button>
+                    </div>
+                    <button onclick="downloadPaidProduct('${order.orderId}', '${item.id}')" class="w-full py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-lg flex items-center justify-center gap-1.5 transition-colors shadow-sm">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh File Aplikasi (${item.downloadFilename || item.platforms.join(' + ')})
+                    </button>
+                </div>
+            `).join('');
+
+            openModal('success-modal');
+            lucide.createIcons();
+        }
+
+        // Unduhan File Asli Setelah Pembayaran Terverifikasi (Lunas)
+        function downloadPaidProduct(orderId, productId) {
+            const order = orders.find(o => o.orderId === orderId);
+            if (!order || order.status !== 'LUNAS') {
+                showToast('Unduhan terkunci: pembayaran belum terkonfirmasi.', 'error');
+                return;
+            }
+
+            const item = order.items.find(i => i.id === productId);
+            if (!item || !item.paid) {
+                showToast('Lisensi unduhan tidak ditemukan untuk item ini.', 'error');
+                return;
+            }
+
+            if (item.downloadUrl && item.downloadUrl.trim() !== '') {
+                window.open(item.downloadUrl.trim(), '_blank', 'noopener,noreferrer');
+            }
+
+            const filename = item.downloadFilename || `${item.name.replace(/\s+/g, '_')}_${item.version}_Paket.json`;
+            const payloadBody = item.downloadPayload && item.downloadPayload.trim() !== ''
+                ? item.downloadPayload.trim()
+                : JSON.stringify({
+                    application: item.name,
+                    version: item.version,
+                    platforms: item.platforms,
+                    status: 'ACTIVE_LIFETIME_LICENSE'
+                }, null, 2);
+
+            const bundleContent = `${payloadBody}
+
+/* =====================================================================
+   BUKTI LISENSI RESMI ${storeSettings.storeName.toUpperCase()}
+   ID Transaksi : ${order.orderId}
+   Tanggal Bayar: ${order.date}
+   Pembeli      : ${order.buyerName} (${order.buyerEmail})
+   Aplikasi     : ${item.name} (${item.version})
+   License Key  : ${item.licenseKey}
+   ===================================================================== */`;
+
+            const mimeType = filename.endsWith('.json')
+                ? 'application/json;charset=utf-8'
+                : 'text/plain;charset=utf-8';
+
+            const blob = new Blob([bundleContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(`File "${filename}" berhasil diunduh!`);
+        }
+
+        // 6. RIWAYAT PEMBELIAN / LISENSI SAYA + HAPUS RIWAYAT
+        function resetHistoryDeleteConfirmations() {
+            pendingDeleteOrderId = null;
+            pendingClearAllOrders = false;
+        }
+
+        function handleDeleteOrderHistory(orderId) {
+            if (pendingDeleteOrderId !== orderId) {
+                pendingDeleteOrderId = orderId;
+                pendingClearAllOrders = false;
+                renderOrdersList();
+                return;
+            }
+
+            const removed = orders.find(o => o.orderId === orderId);
+            orders = orders.filter(o => o.orderId !== orderId);
+            pendingDeleteOrderId = null;
+            saveState();
+            renderOrdersList();
+            showToast(`Riwayat #${removed ? removed.orderId : orderId} dihapus.`, 'info');
+        }
+
+        function handleClearAllOrders() {
+            if (orders.length === 0) return;
+
+            if (!pendingClearAllOrders) {
+                pendingClearAllOrders = true;
+                pendingDeleteOrderId = null;
+                renderOrdersList();
+                return;
+            }
+
+            orders = [];
+            pendingClearAllOrders = false;
+            pendingDeleteOrderId = null;
+            saveState();
+            renderOrdersList();
+            showToast('Semua riwayat pembelian telah dihapus.', 'info');
+        }
+
+        function renderOrdersList() {
+            const container = document.getElementById('orders-list-container');
+            const clearAllBtn = document.getElementById('clear-all-orders-btn');
+            const clearAllLabel = document.getElementById('clear-all-orders-label');
+            if (!container) return;
+
+            if (clearAllBtn && clearAllLabel) {
+                if (orders.length > 0) {
+                    clearAllBtn.classList.remove('hidden');
+                    clearAllLabel.textContent = pendingClearAllOrders ? 'Konfirmasi Hapus Semua' : 'Hapus Semua';
+                    clearAllBtn.className = pendingClearAllOrders
+                        ? 'px-2.5 py-1.5 rounded-lg text-xs font-bold bg-rose-600 text-white border border-rose-600 transition-colors flex items-center gap-1'
+                        : 'px-2.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-transparent hover:border-rose-200 transition-colors flex items-center gap-1';
+                } else {
+                    clearAllBtn.classList.add('hidden');
+                }
+            }
+
+            if (orders.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-12">
+                        <div class="w-16 h-16 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                            <i data-lucide="package-open" class="w-8 h-8"></i>
+                        </div>
+                        <h4 class="font-bold text-slate-800">Belum Ada Riwayat Pembelian</h4>
+                        <p class="text-sm text-slate-500 mt-1 mb-4">Aplikasi dan kode lisensi yang Anda beli akan tersimpan otomatis di sini.</p>
+                        <button onclick="closeModal('orders-modal')" class="px-4 py-2 bg-brand-600 text-white text-xs font-bold rounded-xl">Jelajahi Katalog</button>
+                    </div>
+                `;
+                lucide.createIcons();
+                return;
+            }
+
+            container.innerHTML = orders.map(order => {
+                const isConfirming = pendingDeleteOrderId === order.orderId;
+                return `
+                    <div class="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm">
+                        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 text-xs">
+                            <div class="flex items-center gap-2">
+                                <span class="font-mono font-bold text-slate-800">#${order.orderId}</span>
+                                <span class="text-slate-400">•</span>
+                                <span class="text-slate-500">${order.date}</span>
+                            </div>
+                            <div class="flex items-center gap-2.5">
+                                <span class="font-bold text-emerald-600">Lunas (${formatRupiah(order.totalPaid)})</span>
+                                <button type="button" onclick="handleDeleteOrderHistory('${order.orderId}')" class="px-2 py-1 rounded-lg text-[11px] font-semibold transition-colors flex items-center gap-1 ${
+                                    isConfirming
+                                        ? 'bg-rose-600 text-white'
+                                        : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                                }" title="Hapus riwayat transaksi ini">
+                                    <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                    <span>${isConfirming ? 'Hapus?' : 'Hapus'}</span>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="p-4 space-y-3">
+                            ${order.items.map(item => `
+                                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/70">
+                                    <div>
+                                        <h5 class="font-bold text-sm text-slate-900">${item.name} <span class="text-xs font-mono text-slate-500">${item.version}</span></h5>
+                                        <div class="flex items-center gap-2 mt-1">
+                                            <span class="text-[11px] text-slate-500">Key:</span>
+                                            <code class="text-xs font-mono font-bold text-brand-700 bg-white px-2 py-0.5 rounded border border-slate-200">${item.licenseKey}</code>
+                                            <button onclick="copyText('${item.licenseKey}')" class="text-slate-400 hover:text-brand-600" title="Salin Key">
+                                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <button onclick="downloadPaidProduct('${order.orderId}', '${item.id}')" class="px-3.5 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-1.5 shrink-0 transition-colors">
+                                        <i data-lucide="download" class="w-3.5 h-3.5"></i> Unduh File Aplikasi
+                                    </button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            lucide.createIcons();
+        }
+
+        function openOrdersModal() {
+            resetHistoryDeleteConfirmations();
+            renderOrdersList();
+            openModal('orders-modal');
+        }
+
+        // 7. AUTENTIKASI & PANEL ADMIN (TERKUNCI UNTUK PEMBELI)
+        function openAdminAuthModal() {
+            if (isAdminAuthenticated) {
+                enterAdminView();
+                return;
+            }
+            document.getElementById('admin-password-input').value = '';
+            openModal('admin-auth-modal');
+            setTimeout(() => {
+                document.getElementById('admin-password-input').focus();
+            }, 50);
+        }
+
+        function verifyAdminPassword(e) {
+            e.preventDefault();
+            const entered = document.getElementById('admin-password-input').value;
+            if (entered === storeSettings.adminPassword) {
+                isAdminAuthenticated = true;
+                closeModal('admin-auth-modal');
+                showToast('Akses Mode Admin berhasil diverifikasi.');
+                enterAdminView();
+            } else {
+                showToast('Kata sandi admin salah. Silakan coba lagi.', 'error');
+            }
+        }
+
+        function enterAdminView() {
+            if (!isAdminAuthenticated) return;
+            isAdminMode = true;
+            document.getElementById('store-view').classList.add('hidden');
+            document.getElementById('admin-view').classList.remove('hidden');
+            const exitBtn = document.getElementById('exit-admin-btn');
+            exitBtn.classList.remove('hidden');
+            exitBtn.classList.add('flex');
+            renderAdminDashboard();
+        }
+
+        function exitAdminMode() {
+            isAdminMode = false;
+            isAdminAuthenticated = false;
+            document.getElementById('admin-view').classList.add('hidden');
+            document.getElementById('store-view').classList.remove('hidden');
+            const exitBtn = document.getElementById('exit-admin-btn');
+            exitBtn.classList.add('hidden');
+            exitBtn.classList.remove('flex');
+            renderProducts();
+            showToast('Mode Admin dikunci. Kembali ke tampilan pembeli.', 'info');
+        }
+
+        function toggleAdminMode() {
+            if (!isAdminMode) {
+                openAdminAuthModal();
+            } else {
+                exitAdminMode();
+            }
+        }
+
+        function downloadStoreConfigJson() {
+            if (!isAdminAuthenticated) return;
+            const payload = {
+                storeName: storeSettings.storeName,
+                tagline: storeSettings.tagline,
+                adminPassword: storeSettings.adminPassword,
+                paymentMethods: storeSettings.paymentMethods || [],
+                products: products
+            };
+            const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json;charset=utf-8' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'store-config.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showToast('File "store-config.json" berhasil diunduh untuk diunggah ke GitHub!');
+        }
+
+        function applyExternalConfigData(data, showNotification = false) {
+            if (!data || typeof data !== 'object') return false;
+            let changed = false;
+
+            if (typeof data.storeName === 'string' && data.storeName.trim()) {
+                storeSettings.storeName = data.storeName.trim();
+                changed = true;
+            }
+            if (typeof data.tagline === 'string' && data.tagline.trim()) {
+                storeSettings.tagline = data.tagline.trim();
+                changed = true;
+            }
+            if (typeof data.adminPassword === 'string' && data.adminPassword.trim()) {
+                storeSettings.adminPassword = data.adminPassword.trim();
+                changed = true;
+            }
+            if (Array.isArray(data.paymentMethods) && data.paymentMethods.length > 0) {
+                storeSettings.paymentMethods = data.paymentMethods.map((m, idx) => ({
+                    id: m.id || `pay-ext-${idx}`,
+                    label: m.label || 'Metode Pembayaran',
+                    description: m.description || '',
+                    badge: m.badge || '',
+                    icon: m.icon || 'credit-card',
+                    enabled: m.enabled !== false
+                }));
+                changed = true;
+            }
+            if (Array.isArray(data.products) && data.products.length > 0) {
+                products = data.products;
+                changed = true;
+            }
+
+            if (changed) {
+                saveState();
+                renderCategories();
+                renderProducts();
+                if (isAdminAuthenticated && isAdminMode) {
+                    renderAdminDashboard();
+                }
+                if (showNotification) {
+                    showToast('Konfigurasi toko berhasil disinkronkan dari JSON!');
+                }
+            }
+            return changed;
+        }
+
+        async function syncExternalConfig(showNotification = false) {
+            if (window.location.protocol === 'file:') {
+                if (showNotification) {
+                    showToast('Gunakan Impor JSON saat membuka via file://, atau buka via HTTP/GitHub Pages.', 'info');
+                }
+                return;
+            }
+            try {
+                const res = await fetch(`./store-config.json?ts=${Date.now()}`, { cache: 'no-store' });
+                if (!res.ok) {
+                    if (showNotification) {
+                        showToast('File store-config.json belum ditemukan di repository.', 'info');
+                    }
+                    return;
+                }
+                const data = await res.json();
+                applyExternalConfigData(data, showNotification);
+            } catch (err) {
+                if (showNotification) {
+                    showToast('Tidak dapat memuat store-config.json eksternal.', 'error');
+                }
+            }
+        }
+
+        function importStoreConfigFile(event) {
+            if (!isAdminAuthenticated) return;
+            const file = event.target.files && event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const parsed = JSON.parse(String(e.target.result || '{}'));
+                    const ok = applyExternalConfigData(parsed, true);
+                    if (!ok) {
+                        showToast('Format file JSON konfigurasi tidak sesuai.', 'error');
+                    }
+                } catch (err) {
+                    showToast('File JSON tidak valid.', 'error');
+                } finally {
+                    event.target.value = '';
+                }
+            };
+            reader.readAsText(file, 'utf-8');
+        }
+
+        function saveStoreSettings(e) {
+            e.preventDefault();
+            if (!isAdminAuthenticated) return;
+
+            const newName = document.getElementById('setting-store-name').value.trim();
+            const newTagline = document.getElementById('setting-store-tagline').value.trim();
+            const newPassword = document.getElementById('setting-admin-password').value;
+
+            if (!newName || !newTagline || !newPassword.trim()) {
+                showToast('Semua kolom pengaturan toko wajib diisi.', 'error');
+                return;
+            }
+
+            storeSettings = {
+                ...storeSettings,
+                storeName: newName,
+                tagline: newTagline,
+                adminPassword: newPassword.trim()
+            };
+            saveState();
+            showToast('Pengaturan toko & kata sandi admin berhasil disimpan!');
+        }
+
+        function addPaymentMethod(e) {
+            e.preventDefault();
+            if (!isAdminAuthenticated) return;
+
+            const label = document.getElementById('new-payment-label').value.trim();
+            const description = document.getElementById('new-payment-desc').value.trim();
+            const badge = document.getElementById('new-payment-badge').value;
+
+            if (!label || !description) {
+                showToast('Nama metode dan keterangan pembayaran wajib diisi.', 'error');
+                return;
+            }
+
+            const methods = Array.isArray(storeSettings.paymentMethods) ? storeSettings.paymentMethods : [];
+            methods.push({
+                id: 'pay-' + Date.now(),
+                label,
+                description,
+                badge,
+                icon: 'wallet',
+                enabled: true
+            });
+
+            storeSettings.paymentMethods = methods;
+            document.getElementById('add-payment-method-form').reset();
+            saveState();
+            renderAdminPaymentMethods();
+            showToast(`Metode pembayaran "${label}" ditambahkan!`);
+        }
+
+        function togglePaymentMethod(methodId) {
+            if (!isAdminAuthenticated) return;
+            const methods = storeSettings.paymentMethods || [];
+            const target = methods.find(m => m.id === methodId);
+            if (!target) return;
+            target.enabled = !target.enabled;
+            saveState();
+            renderAdminPaymentMethods();
+            showToast(`Metode "${target.label}" ${target.enabled ? 'diaktifkan' : 'dinonaktifkan'}.`);
+        }
+
+        function deletePaymentMethod(methodId) {
+            if (!isAdminAuthenticated) return;
+            const methods = storeSettings.paymentMethods || [];
+            if (methods.length <= 1) {
+                showToast('Minimal harus ada 1 metode pembayaran tersisa.', 'error');
+                return;
+            }
+            const target = methods.find(m => m.id === methodId);
+            storeSettings.paymentMethods = methods.filter(m => m.id !== methodId);
+            saveState();
+            renderAdminPaymentMethods();
+            showToast(`Metode pembayaran "${target ? target.label : methodId}" dihapus.`, 'info');
+        }
+
+        function renderAdminPaymentMethods() {
+            const listEl = document.getElementById('admin-payment-methods-list');
+            if (!listEl) return;
+
+            const methods = storeSettings.paymentMethods || [];
+            listEl.innerHTML = methods.map(m => `
+                <div class="flex items-center justify-between gap-3 p-3.5 rounded-xl border ${m.enabled ? 'border-slate-200 bg-white' : 'border-slate-200/60 bg-slate-50 opacity-70'}">
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <span class="text-sm font-bold text-slate-900 truncate">${m.label}</span>
+                            ${m.badge ? `<span class="px-1.5 py-0.5 bg-brand-50 text-brand-700 text-[10px] font-bold rounded">${m.badge}</span>` : ''}
+                        </div>
+                        <p class="text-xs text-slate-500 truncate mt-0.5">${m.description}</p>
+                    </div>
+                    <div class="flex items-center gap-1.5 shrink-0">
+                        <button type="button" onclick="togglePaymentMethod('${m.id}')" class="px-2.5 py-1 rounded-lg text-xs font-bold ${m.enabled ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}">
+                            ${m.enabled ? 'Aktif' : 'Nonaktif'}
+                        </button>
+                        <button type="button" onclick="deletePaymentMethod('${m.id}')" class="p-1.5 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus Metode">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function renderAdminDashboard() {
+            if (!isAdminAuthenticated) return;
+
+            // Sinkronkan form pengaturan toko
+            document.getElementById('setting-store-name').value = storeSettings.storeName;
+            document.getElementById('setting-store-tagline').value = storeSettings.tagline;
+            document.getElementById('setting-admin-password').value = storeSettings.adminPassword;
+            renderAdminPaymentMethods();
+
+            // Update Statistik
+            const activeCount = products.filter(p => p.status === 'Tersedia').length;
+            const totalRevenue = orders.reduce((sum, ord) => sum + ord.totalPaid, 0);
+
+            document.getElementById('admin-stat-products').textContent = `${activeCount} / ${products.length}`;
+            document.getElementById('admin-stat-orders').textContent = orders.length;
+            document.getElementById('admin-stat-revenue').textContent = formatRupiah(totalRevenue);
+
+            // Render Tabel Produk
+            const tbody = document.getElementById('admin-product-table');
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-50/80 transition-colors">
+                    <td class="py-3.5 px-4">
+                        <div class="font-bold text-slate-900">${p.name}</div>
+                        <div class="text-xs text-slate-400 line-clamp-1 max-w-xs">${p.desc}</div>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <span class="px-2.5 py-1 bg-slate-100 text-slate-700 text-xs font-medium rounded-lg">${p.category}</span>
+                    </td>
+                    <td class="py-3.5 px-4">
+                        <div class="flex flex-wrap gap-1">
+                            <span class="text-xs font-mono font-bold text-slate-700">${p.version}</span>
+                            <span class="text-slate-300">•</span>
+                            <span class="text-xs text-slate-500">${p.platforms.join(', ')}</span>
+                        </div>
+                    </td>
+                    <td class="py-3.5 px-4 font-bold text-slate-900">${formatRupiah(p.price)}</td>
+                    <td class="py-3.5 px-4">
+                        <button onclick="toggleProductStatus('${p.id}')" class="px-2.5 py-1 rounded-full text-xs font-bold ${
+                            p.status === 'Tersedia' 
+                            ? 'bg-emerald-100 text-emerald-700' 
+                            : 'bg-slate-200 text-slate-600'
+                        }">
+                            ${p.status}
+                        </button>
+                    </td>
+                    <td class="py-3.5 px-4 text-right">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="openProductFormModal('${p.id}')" class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors" title="Edit Aplikasi">
+                                <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="deleteProduct('${p.id}')" class="p-2 text-rose-600 hover:bg-rose-50 rounded-lg transition-colors" title="Hapus Aplikasi">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+
+            lucide.createIcons();
+        }
+
+        function detectAutomaticCategory(nameText, descText, platforms) {
+            const combined = `${nameText || ''} ${descText || ''} ${(platforms || []).join(' ')}`.toLowerCase();
+            if (/(kasir|pos|keuangan|uang|catatuang|akuntansi|pajak|struk|dompet|nota|retur|umkm)/.test(combined)) {
+                return 'Keuangan & Kasir';
+            }
+            if (/(trading|saham|xauusd|forex|screener|sinyal|chart|indikator|lot|idx|crypto)/.test(combined)) {
+                return 'Trading & Saham';
+            }
+            if (/(stok|gudang|inventori|barang|opname|suplier|supplier|distribusi)/.test(combined)) {
+                return 'Bisnis & Stok';
+            }
+            return 'Utilitas';
+        }
+
+        function resolveEffectiveCategory(rawCategory, nameText, descText, platforms) {
+            if (!rawCategory || rawCategory === 'Otomatis' || rawCategory === 'Auto') {
+                return detectAutomaticCategory(nameText, descText, platforms);
+            }
+            return rawCategory;
+        }
+
+        function buildAutoDescriptionAndFeatures() {
+            const name = document.getElementById('form-name').value.trim() || 'Aplikasi Digital';
+            const selectedCategory = document.getElementById('form-category').value || 'Otomatis';
+            const version = document.getElementById('form-version').value.trim() || 'v1.0';
+            const currentDesc = document.getElementById('form-desc').value.trim();
+            const platforms = Array.from(document.querySelectorAll('input[name="form-platforms"]:checked')).map(cb => cb.value);
+            const safePlatforms = platforms.length > 0 ? platforms : ['Web App'];
+            const platformText = safePlatforms.join(', ');
+            const effectiveCategory = resolveEffectiveCategory(selectedCategory, name, currentDesc, safePlatforms);
+
+            const categoryTemplates = {
+                'Keuangan & Kasir': {
+                    desc: `${name} (${version}) adalah aplikasi keuangan & kasir berbasis ${platformText} yang dirancang otomatis untuk mempercepat pencatatan transaksi harian, pembukuan arus kas, cetak bukti transaksi, dan penyusunan laporan keuangan.`,
+                    features: [
+                        'Pencatatan transaksi & arus kas otomatis real-time',
+                        'Rekap laporan harian & bulanan otomatis',
+                        'Dukungan cetak struk & ekspor data laporan',
+                        `Kompatibel penuh di ${platformText}`
+                    ]
+                },
+                'Trading & Saham': {
+                    desc: `${name} (${version}) merupakan perangkat lunak trading & saham untuk ${platformText} yang membantu analisis pergerakan harga, penyaringan peluang pasar otomatis, kalkulasi manajemen risiko, serta notifikasi momentum secara cepat.`,
+                    features: [
+                        'Pemantauan sinyal & indikator teknikal otomatis',
+                        'Kalkulator manajemen risiko & ukuran posisi otomatis',
+                        'Filter instrumen & histori performa terstruktur',
+                        `Dukungan penuh lintas ${platformText}`
+                    ]
+                },
+                'Bisnis & Stok': {
+                    desc: `${name} (${version}) adalah solusi aplikasi bisnis & stok pada platform ${platformText} untuk mengelola keluar-masuk barang, pemantauan stok minimum otomatis, pembuatan dokumen operasional, serta rekap inventaris akurat.`,
+                    features: [
+                        'Pelacakan stok masuk, keluar, & opname barang otomatis',
+                        'Peringatan otomatis saat stok mencapai batas minimum',
+                        'Cetak dokumen operasional & kartu stok rapi',
+                        `Siap dijalankan di ${platformText}`
+                    ]
+                },
+                'Utilitas': {
+                    desc: `${name} (${version}) adalah aplikasi utilitas ringan dan responsif untuk ${platformText} yang mengotomatiskan alur kerja rutin, pengelolaan konfigurasi, serta integrasi data harian dengan antarmuka modern.`,
+                    features: [
+                        'Otomatisasi tugas harian dengan performa ringan',
+                        'Konfigurasi fleksibel & penyimpanan data aman',
+                        'Antarmuka bersih, cepat, dan mudah dioperasikan',
+                        `Tersedia untuk ${platformText}`
+                    ]
+                }
+            };
+
+            const template = categoryTemplates[effectiveCategory] || categoryTemplates['Utilitas'];
+            return {
+                desc: template.desc,
+                features: template.features.join(', ')
+            };
+        }
+
+        function applyAutoDescriptionAndFeatures(force = false) {
+            const isEditing = Boolean(document.getElementById('form-product-id').value);
+            if (isEditing && !force) return;
+
+            const descInput = document.getElementById('form-desc');
+            const featuresInput = document.getElementById('form-features');
+            if (!descInput || !featuresInput) return;
+
+            const generated = buildAutoDescriptionAndFeatures();
+            if (force || !descInput.dataset.manualEdited) {
+                descInput.value = generated.desc;
+            }
+            if (force || !featuresInput.dataset.manualEdited) {
+                featuresInput.value = generated.features;
+            }
+            applyAutoPayloadTemplate(false);
+            if (force) {
+                showToast('Deskripsi produk & daftar fitur otomatis diperbarui!');
+            }
+        }
+
+        function openProductFormModal(productId = null) {
+            const form = document.getElementById('admin-product-form');
+            form.reset();
+
+            const descInput = document.getElementById('form-desc');
+            const featuresInput = document.getElementById('form-features');
+            const filenameInput = document.getElementById('form-download-filename');
+            const payloadInput = document.getElementById('form-download-payload');
+            [descInput, featuresInput, filenameInput, payloadInput].forEach(el => {
+                if (el) el.dataset.manualEdited = '';
+            });
+
+            if (productId) {
+                const p = products.find(item => item.id === productId);
+                if (!p) return;
+                document.getElementById('product-form-title').textContent = 'Edit Aplikasi';
+                document.getElementById('form-product-id').value = p.id;
+                document.getElementById('form-name').value = p.name;
+                document.getElementById('form-category').value = p.category;
+                document.getElementById('form-version').value = p.version;
+                document.getElementById('form-price').value = p.price;
+                document.getElementById('form-status').value = p.status;
+                document.getElementById('form-desc').value = p.desc;
+                document.getElementById('form-features').value = p.features.join(', ');
+                document.getElementById('form-download-filename').value = p.downloadFilename || `${p.id}-paket.json`;
+                document.getElementById('form-download-url').value = p.downloadUrl || '';
+                document.getElementById('form-download-payload').value = p.downloadPayload || '';
+
+                document.querySelectorAll('input[name="form-platforms"]').forEach(cb => {
+                    cb.checked = p.platforms.includes(cb.value);
+                });
+            } else {
+                document.getElementById('product-form-title').textContent = 'Tambah Aplikasi Baru';
+                document.getElementById('form-product-id').value = '';
+                document.querySelectorAll('input[name="form-platforms"]').forEach(cb => {
+                    cb.checked = cb.value === 'Web App';
+                });
+                applyAutoDescriptionAndFeatures(false);
+                applyAutoPayloadTemplate(true);
+            }
+
+            openModal('product-form-modal');
+            lucide.createIcons();
+        }
+
+        function buildAutoPackageBundle() {
+            const name = document.getElementById('form-name').value.trim() || 'Aplikasi Digital';
+            const category = document.getElementById('form-category').value || 'Utilitas';
+            const version = document.getElementById('form-version').value.trim() || 'v1.0';
+            const price = parseInt(document.getElementById('form-price').value, 10) || 0;
+            const desc = document.getElementById('form-desc').value.trim() || 'Paket aplikasi resmi dengan lisensi lifetime.';
+            const features = document.getElementById('form-features').value
+                .split(',')
+                .map(f => f.trim())
+                .filter(Boolean);
+            const platforms = Array.from(document.querySelectorAll('input[name="form-platforms"]:checked')).map(cb => cb.value);
+            const safePlatforms = platforms.length > 0 ? platforms : ['Web App'];
+
+            const slug = name
+                .toLowerCase()
+                .replace(/[^a-z0-9]+/g, '_')
+                .replace(/^_+|_+$/g, '') || 'paket_aplikasi';
+            const safeVersion = version.replace(/[^a-zA-Z0-9._-]/g, '') || 'v1.0';
+            const filename = `${slug}_${safeVersion}_Paket.json`;
+
+            const payloadObj = {
+                store: storeSettings.storeName || 'KatalogApp',
+                product: name,
+                category,
+                version,
+                licenseType: 'LIFETIME',
+                editionPriceIDR: price,
+                platforms: safePlatforms,
+                summary: desc,
+                includedFeatures: features.length > 0 ? features : ['Akses penuh fitur utama', 'Gratis update versi minor'],
+                activationGuide: [
+                    'Simpan file paket ini sebagai arsip resmi pembelian Anda.',
+                    'Salin License Key pada invoice lalu masukkan di menu Aktivasi Aplikasi.',
+                    'Hubungi admin toko jika membutuhkan bantuan instalasi atau migrasi.'
+                ],
+                generatedAt: new Date().toISOString()
+            };
+
+            return {
+                filename,
+                payload: JSON.stringify(payloadObj, null, 2)
+            };
+        }
+
+        function applyAutoPayloadTemplate(force = false) {
+            const isEditing = Boolean(document.getElementById('form-product-id').value);
+            if (isEditing && !force) return;
+
+            const filenameInput = document.getElementById('form-download-filename');
+            const payloadInput = document.getElementById('form-download-payload');
+            if (!filenameInput || !payloadInput) return;
+
+            const bundle = buildAutoPackageBundle();
+            if (force || !filenameInput.dataset.manualEdited) {
+                filenameInput.value = bundle.filename;
+            }
+            if (force || !payloadInput.dataset.manualEdited) {
+                payloadInput.value = bundle.payload;
+            }
+        }
+
+        function saveProductForm(e) {
+            e.preventDefault();
+            if (!isAdminAuthenticated) return;
+
+            const id = document.getElementById('form-product-id').value;
+            const name = document.getElementById('form-name').value.trim();
+            const rawCategory = document.getElementById('form-category').value;
+            const version = document.getElementById('form-version').value.trim();
+            const price = parseInt(document.getElementById('form-price').value, 10);
+            const status = document.getElementById('form-status').value;
+            const desc = document.getElementById('form-desc').value.trim();
+            const platformsForCat = Array.from(document.querySelectorAll('input[name="form-platforms"]:checked')).map(cb => cb.value);
+            const category = resolveEffectiveCategory(rawCategory, name, desc, platformsForCat);
+            const featuresRaw = document.getElementById('form-features').value.split(',').map(f => f.trim()).filter(Boolean);
+            const downloadFilename = document.getElementById('form-download-filename').value.trim() || `${name.replace(/\s+/g, '_')}_${version}.json`;
+            const downloadUrl = document.getElementById('form-download-url').value.trim();
+            const downloadPayload = document.getElementById('form-download-payload').value;
+            
+            const platforms = Array.from(document.querySelectorAll('input[name="form-platforms"]:checked')).map(cb => cb.value);
+            if (platforms.length === 0) {
+                showToast('Pilih minimal 1 platform untuk aplikasi ini!', 'error');
+                return;
+            }
+
+            if (id) {
+                // Update produk
+                const idx = products.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    products[idx] = {
+                        ...products[idx],
+                        name, category, version, price, status, desc,
+                        features: featuresRaw.length ? featuresRaw : ['Siap pakai & dukungan penuh'],
+                        platforms,
+                        downloadFilename,
+                        downloadUrl,
+                        downloadPayload
+                    };
+                    showToast(`Aplikasi "${name}" berhasil diperbarui!`);
+                }
+            } else {
+                // Tambah produk baru
+                const colors = [
+                    'from-indigo-600 to-blue-600',
+                    'from-emerald-600 to-teal-600',
+                    'from-amber-500 to-orange-600',
+                    'from-purple-600 to-pink-600'
+                ];
+                const newProduct = {
+                    id: 'app-' + Date.now(),
+                    name,
+                    category,
+                    platforms,
+                    version,
+                    rating: 5.0,
+                    reviews: 1,
+                    price,
+                    status,
+                    icon: 'sparkles',
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    size: '28.0 MB',
+                    downloadFilename,
+                    downloadUrl,
+                    downloadPayload,
+                    desc,
+                    features: featuresRaw.length ? featuresRaw : ['Siap pakai & dukungan penuh'],
+                    changelog: `${version} - Rilis perdana di ${storeSettings.storeName}.`
+                };
+                products.unshift(newProduct);
+                showToast(`Aplikasi baru "${name}" ditambahkan ke katalog!`);
+            }
+
+            saveState();
+            closeModal('product-form-modal');
+            renderAdminDashboard();
+        }
+
+        function toggleProductStatus(productId) {
+            if (!isAdminAuthenticated) return;
+            const idx = products.findIndex(p => p.id === productId);
+            if (idx === -1) return;
+            products[idx].status = products[idx].status === 'Tersedia' ? 'Nonaktif' : 'Tersedia';
+            saveState();
+            renderAdminDashboard();
+            showToast(`Status "${products[idx].name}" diubah menjadi ${products[idx].status}.`);
+        }
+
+        function deleteProduct(productId) {
+            if (!isAdminAuthenticated) return;
+            const target = products.find(p => p.id === productId);
+            products = products.filter(p => p.id !== productId);
+            cart = cart.filter(item => item.id !== productId);
+            saveState();
+            renderAdminDashboard();
+            showToast(`Aplikasi "${target ? target.name : productId}" telah dihapus.`, 'info');
+        }
+
+        function resetDefaultData() {
+            if (!isAdminAuthenticated) return;
+            storeSettings = {
+                ...DEFAULT_STORE_SETTINGS,
+                paymentMethods: JSON.parse(JSON.stringify(DEFAULT_PAYMENT_METHODS))
+            };
+            products = JSON.parse(JSON.stringify(DEFAULT_PRODUCTS));
+            saveState();
+            renderAdminDashboard();
+            showToast('Data katalog berhasil dikembalikan ke pengaturan awal!');
+        }
+
+        // 7B. BAGIKAN APLIKASI / TOKO KE SEMUA MEDIA SOSIAL
+        let activeShareData = {
+            title: '',
+            caption: '',
+            url: ''
+        };
+
+        function buildShareUrl(productId = null) {
+            try {
+                const baseHref = (window.location && window.location.href && window.location.href.startsWith('http'))
+                    ? window.location.href.split('#')[0].split('?')[0]
+                    : 'https://katalogapp.github.io/';
+                return productId ? `${baseHref}?app=${encodeURIComponent(productId)}` : baseHref;
+            } catch (e) {
+                return 'https://katalogapp.github.io/';
+            }
+        }
+
+        function openShareModal(productId = null) {
+            const storeLabel = storeSettings.storeName || 'KatalogApp';
+            const shareUrl = buildShareUrl(productId);
+
+            if (productId) {
+                const product = products.find(p => p.id === productId);
+                if (!product) return;
+                const platformsLabel = (product.platforms || []).join(', ');
+                const caption = `Cek aplikasi ${product.name} (${product.version}) di ${storeLabel}! Platform: ${platformsLabel}. Harga lisensi lifetime: ${formatRupiah(product.price)}.`;
+
+                activeShareData = {
+                    title: product.name,
+                    caption,
+                    url: shareUrl
+                };
+
+                document.getElementById('share-target-badge').textContent = `${product.category} • ${product.version}`;
+                document.getElementById('share-target-title').textContent = product.name;
+                document.getElementById('share-target-subtitle').textContent = `Platform: ${platformsLabel}`;
+                document.getElementById('share-target-price').textContent = formatRupiah(product.price);
+            } else {
+                const caption = `Kunjungi ${storeLabel} - ${storeSettings.tagline || 'Toko Aplikasi & Software Digital'} dengan aktivasi lisensi otomatis dan gratis update.`;
+                activeShareData = {
+                    title: storeLabel,
+                    caption,
+                    url: shareUrl
+                };
+
+                document.getElementById('share-target-badge').textContent = 'TOKO APLIKASI DIGITAL';
+                document.getElementById('share-target-title').textContent = storeLabel;
+                document.getElementById('share-target-subtitle').textContent = storeSettings.tagline || 'Digital Software & Source Code';
+                document.getElementById('share-target-price').textContent = `${products.filter(p => p.status === 'Tersedia').length} Apps`;
+            }
+
+            document.getElementById('share-caption-text').value = activeShareData.caption;
+            document.getElementById('share-url-input').value = activeShareData.url;
+            openModal('share-modal');
+            lucide.createIcons();
+        }
+
+        function handleShareCaptionChange() {
+            activeShareData.caption = document.getElementById('share-caption-text').value.trim();
+        }
+
+        function getFullShareText() {
+            const caption = (document.getElementById('share-caption-text')?.value || activeShareData.caption || '').trim();
+            const url = (document.getElementById('share-url-input')?.value || activeShareData.url || '').trim();
+            return url ? `${caption}
+${url}` : caption;
+        }
+
+        function copyShareCaption() {
+            copyText(getFullShareText());
+        }
+
+        function copyShareLink() {
+            const url = (document.getElementById('share-url-input')?.value || activeShareData.url || '').trim();
+            copyText(url);
+        }
+
+        function openExternalShareWindow(shareUrl) {
+            const win = window.open(shareUrl, '_blank', 'noopener,noreferrer');
+            if (!win) {
+                copyText(getFullShareText());
+                showToast('Popup diblokir browser. Teks & tautan sudah disalin ke clipboard.', 'info');
+            }
+        }
+
+        function shareToSocial(platform) {
+            const caption = (document.getElementById('share-caption-text')?.value || activeShareData.caption || '').trim();
+            const url = (document.getElementById('share-url-input')?.value || activeShareData.url || '').trim();
+            const fullText = url ? `${caption}
+${url}` : caption;
+            const encodedText = encodeURIComponent(fullText);
+            const encodedCaption = encodeURIComponent(caption);
+            const encodedUrl = encodeURIComponent(url);
+
+            switch (platform) {
+                case 'whatsapp':
+                    openExternalShareWindow(`https://api.whatsapp.com/send?text=${encodedText}`);
+                    showToast('Membuka WhatsApp untuk membagikan...');
+                    break;
+                case 'telegram':
+                    openExternalShareWindow(`https://t.me/share/url?url=${encodedUrl}&text=${encodedCaption}`);
+                    showToast('Membuka Telegram untuk membagikan...');
+                    break;
+                case 'facebook':
+                    openExternalShareWindow(`https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}"e=${encodedCaption}`);
+                    showToast('Membuka Facebook untuk membagikan...');
+                    break;
+                case 'x':
+                    openExternalShareWindow(`https://twitter.com/intent/tweet?text=${encodedText}`);
+                    showToast('Membuka X (Twitter) untuk membagikan...');
+                    break;
+                case 'linkedin':
+                    openExternalShareWindow(`https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`);
+                    showToast('Membuka LinkedIn untuk membagikan...');
+                    break;
+                case 'instagram':
+                case 'tiktok':
+                case 'threads':
+                    copyText(fullText);
+                    if (platform === 'threads') {
+                        openExternalShareWindow(`https://www.threads.net/intent/post?text=${encodedText}`);
+                    }
+                    showToast(`Caption & link disalin untuk diposting ke ${platform.charAt(0).toUpperCase() + platform.slice(1)}!`);
+                    break;
+                case 'native':
+                    if (navigator.share) {
+                        navigator.share({
+                            title: activeShareData.title || (storeSettings.storeName || 'KatalogApp'),
+                            text: caption,
+                            url: url
+                        }).then(() => {
+                            showToast('Berhasil dibagikan lewat menu perangkat!');
+                        }).catch((err) => {
+                            if (err && err.name !== 'AbortError') {
+                                copyText(fullText);
+                                showToast('Caption & link disalin ke clipboard.', 'info');
+                            }
+                        });
+                    } else {
+                        copyText(fullText);
+                        showToast('Perangkat ini tidak mendukung share sheet langsung; caption & link telah disalin!', 'info');
+                    }
+                    break;
+                default:
+                    copyText(fullText);
+            }
+        }
+
+        // 8. MODAL & BADGE HELPERS
+        function openModal(id) {
+            document.getElementById(id).classList.remove('hidden');
+        }
+
+        function closeModal(id) {
+            if (id === 'orders-modal') {
+                resetHistoryDeleteConfirmations();
+            }
+            document.getElementById(id).classList.add('hidden');
+        }
+
+        function updateBadges() {
+            const cartBadge = document.getElementById('cart-badge');
+            cartBadge.textContent = cart.length;
+            
+            const ordersBadge = document.getElementById('orders-badge');
+            if (orders.length > 0) {
+                ordersBadge.textContent = orders.length;
+                ordersBadge.classList.remove('hidden');
+            } else {
+                ordersBadge.classList.add('hidden');
+            }
+        }
+
+        // Highlight radio button metode pembayaran saat dipilih
+        document.querySelectorAll('input[name="payment"]').forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.querySelectorAll('.payment-option').forEach(label => {
+                    label.classList.remove('border-brand-500', 'bg-brand-50/50');
+                    label.classList.add('border-slate-200');
+                });
+                radio.closest('.payment-option').classList.remove('border-slate-200');
+                radio.closest('.payment-option').classList.add('border-brand-500', 'bg-brand-50/50');
+            });
+        });
+
+        // Inisialisasi Halaman Saat Pertama Dimuat
+        window.addEventListener('DOMContentLoaded', () => {
+            const descInput = document.getElementById('form-desc');
+            const featuresInput = document.getElementById('form-features');
+            const filenameInput = document.getElementById('form-download-filename');
+            const payloadInput = document.getElementById('form-download-payload');
+            const autoTriggerIds = ['form-name', 'form-category', 'form-version', 'form-price', 'form-desc', 'form-features'];
+
+            if (descInput) {
+                descInput.addEventListener('input', () => {
+                    descInput.dataset.manualEdited = descInput.value.trim() ? 'true' : '';
+                });
+            }
+            if (featuresInput) {
+                featuresInput.addEventListener('input', () => {
+                    featuresInput.dataset.manualEdited = featuresInput.value.trim() ? 'true' : '';
+                });
+            }
+            if (filenameInput) {
+                filenameInput.addEventListener('input', () => {
+                    filenameInput.dataset.manualEdited = filenameInput.value.trim() ? 'true' : '';
+                });
+            }
+            if (payloadInput) {
+                payloadInput.addEventListener('input', () => {
+                    payloadInput.dataset.manualEdited = payloadInput.value.trim() ? 'true' : '';
+                });
+            }
+            autoTriggerIds.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    el.addEventListener('input', () => {
+                        if (id !== 'form-desc' && id !== 'form-features') {
+                            applyAutoDescriptionAndFeatures(false);
+                        }
+                        applyAutoPayloadTemplate(false);
+                    });
+                    el.addEventListener('change', () => {
+                        if (id !== 'form-desc' && id !== 'form-features') {
+                            applyAutoDescriptionAndFeatures(false);
+                        }
+                        applyAutoPayloadTemplate(false);
+                    });
+                }
+            });
+            document.querySelectorAll('input[name="form-platforms"]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    applyAutoDescriptionAndFeatures(false);
+                    applyAutoPayloadTemplate(false);
+                });
+            });
+
+            applyStoreBranding();
+            renderCheckoutPaymentMethods();
+            renderCategories();
+            renderProducts();
+            updateBadges();
+            lucide.createIcons();
+            syncExternalConfig(false);
+        });
+    </script>
+</body>
+</html>
